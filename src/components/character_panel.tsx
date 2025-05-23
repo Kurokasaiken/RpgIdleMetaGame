@@ -1,6 +1,6 @@
 import React from 'react';
 import { Swords, Sword, Zap } from 'lucide-react';
-import { Character, Weapon, Skill, CombatOptions, getAvailableSkills, getSkillSlots } from './gameData';
+import { Character, Weapon, Skill, CombatOptions, getAvailableSkills, getSkillSlots } from '../gameData';
 
 interface CharacterPanelProps {
   character: Character;
@@ -109,7 +109,7 @@ export const CharacterPanel: React.FC<CharacterPanelProps> = ({
                 <input
                   type="number"
                   value={character.agility[1]}
-                  onChange={(e) => setCharacter(prev => ({
+                  onChange={(_(e) => setCharacter(prev => ({
                     ...prev,
                     agility: [prev.agility[0], parseInt(e.target.value) || 0]
                   }))}

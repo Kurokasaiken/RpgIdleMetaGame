@@ -1,39 +1,12 @@
-import { Character, Weapon, Skill, CombatOptions } from './gameData';
-
-export interface CombatResult {
-  winner: string | null;
-  turns: number;
-  log: string[];
-  finalStats: {
-    char1Health: number;
-    char2Health: number;
-  };
-}
-
-export interface SimulationResult {
-  iterations: number;
-  char1Wins: number;
-  char2Wins: number;
-  draws: number;
-  char1WinRate: number;
-  char2WinRate: number;
-  drawRate: number;
-  avgTurns: number;
-  balanceIssues: string[];
-  turnDistribution: number[];
-}
+import { Character, Weapon, Skill, CombatOptions, CombatResult, randomFromRange } from './gameData';
 
 export class CombatEngine {
-  private randomFromRange(range: [number, number]): number {
-    return Math.floor(Math.random() * (range[1] - range[0] + 1)) + range[0];
-  }
-
   private calculateBaseStat(statRange: [number, number]): number {
-    return this.randomFromRange(statRange);
+    return randomFromRange(statRange);
   }
 
-  private calculateHitChance(attacker: any, defender: any): boolean {
-    if (!attacker.agility || !defender.agility) return true;
+  private calculateHitChance(attacker: any, defender: any, combatOptions: CombatOptions): boolean {
+    if (!combatOptions.hitChance) return true;
     
     const attackerAgi = this.calculateBaseStat(attacker.agility);
     const defenderAgi = this.calculateBaseStat(defender.agility);
@@ -42,8 +15,8 @@ export class CombatEngine {
     return Math.random() * 100 < hitChance;
   }
 
-  private calculateCriticalHit(attacker: any): boolean {
-    if (!attacker.luck) return false;
+  private calculateCriticalHit(attacker: any, combatOptions: CombatOptions): boolean {
+    if (!combatOptions.critical) return false;
     
     const luck = this.calculateBaseStat(attacker.luck);
     const critChance = Math.min(50, Math.max(1, luck * 0.5));
@@ -56,7 +29,7 @@ export class CombatEngine {
     skillMultiplier: number = 1,
     isCritical: boolean = false
   ): number {
-    const baseDamage = this.randomFromRange(weapon.damage);
+    const baseDamage = randomFromRange(weapon.damage);
     
     const strBonus = this.calculateBaseStat(attacker.strength) * weapon.strScaling;
     const agiBonus = this.calculateBaseStat(attacker.agility) * weapon.agiScaling;
@@ -72,7 +45,7 @@ export class CombatEngine {
   }
 
   private applyArmor(damage: number, armor: [number, number]): number {
-    const defense = this.randomFromRange(armor);
+    const defense = randomFromRange(armor);
     return Math.max(1, damage - defense);
   }
 
@@ -83,8 +56,12 @@ export class CombatEngine {
     skills: Skill[],
     combatOptions: CombatOptions
   ): CombatResult {
-    const weapon1 = weapons.find(w => w.id === char1.weaponId)!;
-    const weapon2 = weapons.find(w => w.id === char2.weaponId)!;
+    const weapon1 = weapons.find(w => w.id === char1.weaponId);
+    const weapon2 = weapons.find(w => w.id === char2.weaponId);
+    
+    if (!weapon1 || !weapon2) {
+      throw new Error('Arma non trovata per uno dei personaggi');
+    }
     
     let fighter1 = {
       ...char1,
@@ -100,37 +77,34 @@ export class CombatEngine {
 
     const log: string[] = [];
     let turns = 0;
-    const maxTurns = 50;
+    const maxTurns = combatOptions.maxTurns || 50;
 
-    log.push(`=== COMBAT START ===`);
+    log.push(`=== INIZIO COMBATTIMENTO ===`);
     log.push(`${fighter1.name} (${fighter1.currentHealth} HP) vs ${fighter2.name} (${fighter2.currentHealth} HP)`);
 
     while (fighter1.currentHealth > 0 && fighter2.currentHealth > 0 && turns < maxTurns) {
       turns++;
-      log.push(`\n--- Turn ${turns} ---`);
+      log.push(`\n--- Turno ${turns} ---`);
 
-      // Aggiorna cooldown delle skill
       this.updateCooldowns(fighter1);
       this.updateCooldowns(fighter2);
 
-      // Fighter 1 attacca
       this.performAttack(fighter1, fighter2, weapon1, skills, combatOptions, log);
       
       if (fighter2.currentHealth <= 0) break;
 
-      // Fighter 2 attacca
       this.performAttack(fighter2, fighter1, weapon2, skills, combatOptions, log);
     }
 
     let winner: string | null = null;
     if (fighter1.currentHealth > 0 && fighter2.currentHealth <= 0) {
       winner = fighter1.name;
-      log.push(`\n${fighter1.name} WINS!`);
+      log.push(`\n${fighter1.name} VINCE!`);
     } else if (fighter2.currentHealth > 0 && fighter1.currentHealth <= 0) {
       winner = fighter2.name;
-      log.push(`\n${fighter2.name} WINS!`);
+      log.push(`\n${fighter2.name} VINCE!`);
     } else {
-      log.push(`\nDRAW! (Combat lasted ${maxTurns} turns)`);
+      log.push(`\nPAREGGIO! (Combattimento durato ${maxTurns} turni)`);
     }
 
     return {
@@ -160,7 +134,6 @@ export class CombatEngine {
     combatOptions: CombatOptions,
     log: string[]
   ): void {
-    // Scegli skill disponibile
     let selectedSkill: Skill | null = null;
     if (combatOptions.skills && attacker.equippedSkills.length > 0) {
       const availableSkills = attacker.equippedSkills
@@ -176,20 +149,15 @@ export class CombatEngine {
     let totalDamage = 0;
 
     for (let i = 0; i < attacks; i++) {
-      // Controlla hit chance
-      if (combatOptions.hitChance && !this.calculateHitChance(attacker, defender)) {
-        log.push(`${attacker.name} misses!`);
+      if (combatOptions.hitChance && !this.calculateHitChance(attacker, defender, combatOptions)) {
+        log.push(`${attacker.name} manca il colpo!`);
         continue;
       }
 
-      // Controlla critical hit
-      const isCritical = combatOptions.critical && this.calculateCriticalHit(attacker);
-
-      // Calcola danno
+      const isCritical = combatOptions.critical && this.calculateCriticalHit(attacker, combatOptions);
       const skillMultiplier = selectedSkill ? selectedSkill.damage : 1;
       let damage = this.calculateDamage(attacker, weapon, skillMultiplier, isCritical);
 
-      // Applica armatura
       if (combatOptions.armor) {
         damage = this.applyArmor(damage, defender.armor.defense);
       }
@@ -197,8 +165,8 @@ export class CombatEngine {
       totalDamage += damage;
       
       const attackText = selectedSkill ? `${selectedSkill.name}` : `${weapon.name}`;
-      const critText = isCritical ? " (CRITICAL!)" : "";
-      log.push(`${attacker.name} attacks with ${attackText} for ${damage} damage${critText}`);
+      const critText = isCritical ? " (CRITICO!)" : "";
+      log.push(`${attacker.name} attacca con ${attackText} per ${damage} danno${critText}`);
     }
 
     if (selectedSkill) {
@@ -206,7 +174,7 @@ export class CombatEngine {
     }
 
     defender.currentHealth -= totalDamage;
-    log.push(`${defender.name} has ${Math.max(0, defender.currentHealth)} HP remaining`);
+    log.push(`${defender.name} ha ${Math.max(0, defender.currentHealth)} HP rimanenti`);
   }
 
   public async runMassSimulation(
@@ -216,7 +184,7 @@ export class CombatEngine {
     skills: Skill[],
     combatOptions: CombatOptions,
     iterations: number = 1000
-  ): Promise<SimulationResult> {
+  ): Promise<any> {
     let char1Wins = 0;
     let char2Wins = 0;
     let draws = 0;
@@ -237,7 +205,6 @@ export class CombatEngine {
       totalTurns += result.turns;
       turnCounts.push(result.turns);
       
-      // Yield control every 100 iterations for UI responsiveness
       if (i % 100 === 0) {
         await new Promise(resolve => setTimeout(resolve, 1));
       }
@@ -248,7 +215,6 @@ export class CombatEngine {
     const char2WinRate = (char2Wins / iterations) * 100;
     const drawRate = (draws / iterations) * 100;
 
-    // Analisi del bilanciamento
     const balanceIssues: string[] = [];
     if (char1WinRate > 65) {
       balanceIssues.push(`${char1.name} troppo forte (${char1WinRate.toFixed(1)}% vittorie)`);

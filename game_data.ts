@@ -1,58 +1,10 @@
 import { Wind, Sword, Mountain, Zap } from 'lucide-react';
-
-export interface Weapon {
-  id: number;
-  name: string;
-  type: 'light' | 'medium' | 'heavy';
-  damage: [number, number];
-  attacks: number;
-  damageMultiplier: number;
-  strScaling: number;
-  agiScaling: number;
-  intScaling: number;
-  icon: any;
-}
-
-export interface Skill {
-  id: number;
-  name: string;
-  description: string;
-  type: 'weapon' | 'magic' | 'passive';
-  damage: number;
-  cooldown: number;
-  requirements?: {
-    weaponType?: string;
-    minInt?: number;
-    minStr?: number;
-    minAgi?: number;
-  };
-}
-
-export interface Character {
-  name: string;
-  health: [number, number];
-  strength: [number, number];
-  agility: [number, number];
-  intelligence: [number, number];
-  luck: [number, number];
-  weaponId: number;
-  armor: {
-    defense: [number, number];
-  };
-  equippedSkills: number[];
-}
-
-export interface CombatOptions {
-  hitChance: boolean;
-  critical: boolean;
-  armor: boolean;
-  skills: boolean;
-}
+import { Character, Weapon, Skill } from './types';
 
 export const initialWeapons: Weapon[] = [
   {
     id: 1,
-    name: "Rusty Dagger",
+    name: "Pugnale Arrugginito",
     type: "light",
     damage: [8, 12],
     attacks: 2,
@@ -64,7 +16,7 @@ export const initialWeapons: Weapon[] = [
   },
   {
     id: 2,
-    name: "Iron Sword",
+    name: "Spada di Ferro",
     type: "medium",
     damage: [12, 18],
     attacks: 1,
@@ -76,7 +28,7 @@ export const initialWeapons: Weapon[] = [
   },
   {
     id: 3,
-    name: "Steel Greatsword",
+    name: "Spadone d'Acciaio",
     type: "heavy",
     damage: [20, 28],
     attacks: 1,
@@ -88,7 +40,7 @@ export const initialWeapons: Weapon[] = [
   },
   {
     id: 4,
-    name: "Flame Blade",
+    name: "Lama di Fuoco",
     type: "medium",
     damage: [15, 22],
     attacks: 1,
@@ -100,7 +52,7 @@ export const initialWeapons: Weapon[] = [
   },
   {
     id: 5,
-    name: "Twin Daggers",
+    name: "Doppio Pugnale",
     type: "light",
     damage: [6, 10],
     attacks: 3,
@@ -115,57 +67,57 @@ export const initialWeapons: Weapon[] = [
 export const initialSkills: Skill[] = [
   {
     id: 1,
-    name: "Power Strike",
-    description: "A mighty blow that deals extra damage",
-    type: "weapon",
+    name: "Colpo Potente",
+    description: "Un colpo poderoso che infligge danno extra",
+    type: "physical",
     damage: 1.5,
     cooldown: 3,
-    requirements: { minStr: 15 }
+    requirements: { minStats: { strength: 15 } }
   },
   {
     id: 2,
-    name: "Quick Strike",
-    description: "Fast attack with reduced damage but lower cooldown",
-    type: "weapon",
+    name: "Colpo Rapido",
+    description: "Attacco veloce con danno ridotto ma cooldown inferiore",
+    type: "physical",
     damage: 1.2,
     cooldown: 2,
-    requirements: { minAgi: 12 }
+    requirements: { minStats: { agility: 12 } }
   },
   {
     id: 3,
-    name: "Fireball",
-    description: "Magical fire attack",
-    type: "magic",
+    name: "Palla di Fuoco",
+    description: "Attacco magico di fuoco",
+    type: "magical",
     damage: 1.8,
     cooldown: 4,
-    requirements: { minInt: 20 }
+    requirements: { minStats: { intelligence: 20 } }
   },
   {
     id: 4,
-    name: "Ice Shard",
-    description: "Sharp ice projectile",
-    type: "magic",
+    name: "Scheggia di Ghiaccio",
+    description: "Proiettile di ghiaccio affilato",
+    type: "magical",
     damage: 1.4,
     cooldown: 3,
-    requirements: { minInt: 15 }
+    requirements: { minStats: { intelligence: 15 } }
   },
   {
     id: 5,
-    name: "Berserker Rage",
-    description: "Increases damage but reduces defense",
+    name: "Furia Berserker",
+    description: "Aumenta il danno ma riduce la difesa",
     type: "passive",
     damage: 1.3,
     cooldown: 5,
-    requirements: { minStr: 18 }
+    requirements: { minStats: { strength: 18 } }
   },
   {
     id: 6,
-    name: "Shadow Step",
-    description: "Quick movement that increases hit chance",
-    type: "weapon",
+    name: "Passo nell'Ombra",
+    description: "Movimento rapido che aumenta la probabilità di colpo",
+    type: "physical",
     damage: 1.1,
     cooldown: 2,
-    requirements: { minAgi: 16, weaponType: "light" }
+    requirements: { weaponTypes: ["light"], minStats: { agility: 16 } }
   }
 ];
 
@@ -176,12 +128,12 @@ export const getAvailableSkills = (character: Character, weapons: Weapon[], skil
   return skills.filter(skill => {
     if (!skill.requirements) return true;
     
-    const { weaponType, minStr, minInt, minAgi } = skill.requirements;
+    const { weaponTypes, minStats } = skill.requirements;
     
-    if (weaponType && weapon.type !== weaponType) return false;
-    if (minStr && character.strength[1] < minStr) return false;
-    if (minInt && character.intelligence[1] < minInt) return false;
-    if (minAgi && character.agility[1] < minAgi) return false;
+    if (weaponTypes && !weaponTypes.includes(weapon.type)) return false;
+    if (minStats?.strength && character.strength[1] < minStats.strength) return false;
+    if (minStats?.intelligence && character.intelligence[1] < minStats.intelligence) return false;
+    if (minStats?.agility && character.agility[1] < minStats.agility) return false;
     
     return true;
   });
