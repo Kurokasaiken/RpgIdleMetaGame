@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Sword, Zap, Plus, Wind, Mountain } from 'lucide-react';
-import { Weapon, Skill } from '../gameData';
+import { Weapon, Skill } from '../types';
 
 interface DatabaseTabProps {
   weapons: Weapon[];

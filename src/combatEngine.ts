@@ -1,11 +1,13 @@
-import { Character, Weapon, Skill, CombatOptions, CombatResult, randomFromRange } from './gameData';
+import { randomFromRange } from './gameData';
+import { Character, Weapon, Skill, CombatOptions, CombatResult } from './types';
+import { StatRange } from './types';
 
 export class CombatEngine {
-  private calculateBaseStat(statRange: [number, number]): number {
+  private calculateBaseStat(statRange: StatRange): number {
     return randomFromRange(statRange);
   }
 
-  private calculateHitChance(attacker: any, defender: any, combatOptions: CombatOptions): boolean {
+  private calculateHitChance(attacker: Character, defender: Character, combatOptions: CombatOptions): boolean {
     if (!combatOptions.hitChance) return true;
     
     const attackerAgi = this.calculateBaseStat(attacker.agility);
@@ -15,7 +17,7 @@ export class CombatEngine {
     return Math.random() * 100 < hitChance;
   }
 
-  private calculateCriticalHit(attacker: any, combatOptions: CombatOptions): boolean {
+  private calculateCriticalHit(attacker: Character, combatOptions: CombatOptions): boolean {
     if (!combatOptions.critical) return false;
     
     const luck = this.calculateBaseStat(attacker.luck);
@@ -24,16 +26,16 @@ export class CombatEngine {
   }
 
   private calculateDamage(
-    attacker: any, 
+    attacker: Character, 
     weapon: Weapon, 
     skillMultiplier: number = 1,
     isCritical: boolean = false
   ): number {
     const baseDamage = randomFromRange(weapon.damage);
     
-    const strBonus = this.calculateBaseStat(attacker.strength) * weapon.strScaling;
-    const agiBonus = this.calculateBaseStat(attacker.agility) * weapon.agiScaling;
-    const intBonus = this.calculateBaseStat(attacker.intelligence) * weapon.intScaling;
+    const strBonus = this.calculateBaseStat(attacker.strength) * (weapon.strScaling || 0);
+    const agiBonus = this.calculateBaseStat(attacker.agility) * (weapon.agiScaling || 0);
+    const intBonus = this.calculateBaseStat(attacker.intelligence) * (weapon.intScaling || 0);
     
     let totalDamage = (baseDamage + strBonus + agiBonus + intBonus) * weapon.damageMultiplier * skillMultiplier;
     
@@ -44,7 +46,7 @@ export class CombatEngine {
     return Math.floor(Math.max(1, totalDamage));
   }
 
-  private applyArmor(damage: number, armor: [number, number]): number {
+  private applyArmor(damage: number, armor: StatRange): number {
     const defense = randomFromRange(armor);
     return Math.max(1, damage - defense);
   }
@@ -138,7 +140,7 @@ export class CombatEngine {
     if (combatOptions.skills && attacker.equippedSkills.length > 0) {
       const availableSkills = attacker.equippedSkills
         .map((id: number) => skills.find(s => s.id === id))
-        .filter((skill: Skill | undefined) => skill && (!attacker.skillCooldowns.get(skill.id) || attacker.skillCooldowns.get(skill.id) === 0));
+        .filter((skill: Skill | undefined): skill is Skill => skill !== undefined && (!attacker.skillCooldowns.get(skill.id) || attacker.skillCooldowns.get(skill.id) === 0));
       
       if (availableSkills.length > 0) {
         selectedSkill = availableSkills[Math.floor(Math.random() * availableSkills.length)];
