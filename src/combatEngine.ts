@@ -83,12 +83,11 @@ export class CombatEngine {
 
     const log: string[] = [];
     let turns = 0;
-    const maxTurns = combatOptions.maxTurns || 50;
 
     log.push(`=== INIZIO COMBATTIMENTO ===`);
     log.push(`${fighter1.name} (${fighter1.currentHealth} HP) vs ${fighter2.name} (${fighter2.currentHealth} HP)`);
 
-    while (fighter1.currentHealth > 0 && fighter2.currentHealth > 0 && turns < maxTurns) {
+    while (fighter1.currentHealth > 0 && fighter2.currentHealth > 0 ) {
       turns++;
       log.push(`\n--- Turno ${turns} ---`);
 
@@ -110,7 +109,8 @@ export class CombatEngine {
       winner = fighter2.name;
       log.push(`\n${fighter2.name} VINCE!`);
     } else {
-      log.push(`\nPAREGGIO! (Combattimento durato ${maxTurns} turni)`);
+      winner = null;
+      log.push(`\nPareggio!`);
     }
 
     return {
@@ -143,7 +143,7 @@ export class CombatEngine {
     let selectedSkill: Skill | null = null;
     if (combatOptions.skills && attacker.equippedSkills.length > 0) {
       const availableSkills = attacker.equippedSkills
-        .map((id: string) => skills.find(s => s.id === id))
+        .map((id: number) => skills.find(s => s.id === id))
         .filter((skill: Skill | undefined): skill is Skill => 
           skill !== undefined && (!attacker.skillCooldowns.get(skill.id) || attacker.skillCooldowns.get(skill.id) === 0)
         );

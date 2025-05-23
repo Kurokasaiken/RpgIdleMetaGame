@@ -49,3 +49,28 @@ export interface CombatOptions {
 }
 
 export type StatRange = [number, number];
+
+// Risultato di un singolo combattimento
+export interface CombatResult {
+  winner: string | null;  // Nome del vincitore o null in caso di pareggio
+  turns: number;          // Numero di turni impiegati nel combattimento
+  log: string[];          // Log testuale degli eventi di combattimento
+  finalStats: {
+    char1Health: number;  // HP finali del personaggio 1
+    char2Health: number;  // HP finali del personaggio 2
+  };
+}
+
+// Risultato di una simulazione massiva
+export interface SimulationResults {
+  iterations: number;      // Numero totale di simulazioni eseguite
+  char1Wins: number;       // Vittorie del personaggio 1
+  char2Wins: number;       // Vittorie del personaggio 2
+  draws: number;           // Pareggi
+  char1WinRate: number;    // Percentuale vittorie del personaggio 1
+  char2WinRate: number;    // Percentuale vittorie del personaggio 2
+  drawRate: number;        // Percentuale pareggi
+  avgTurns: number;        // Numero medio di turni per combattimento
+  balanceIssues: string[]; // Eventuali segnalazioni di squilibrio nel bilanciamento
+  turnDistribution: number[]; // Array con la distribuzione dei turni per ogni combattimento
+}
