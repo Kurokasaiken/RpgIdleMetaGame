@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { Swords, Database, BarChart3, Plus, Wind, Sword, Mountain, Zap } from 'lucide-react';
-import { combatEngine } from './combat-engine';
-import { initialWeapons, initialSkills, getAvailableSkills, getSkillSlots, randomFromRange } from './gameData';
+import { getAvailableSkills, getSkillSlots } from './gameData';
+import { Character, Weapon, Skill } from './types';
 
 // Import components
 const CharacterPanel = ({ character, setCharacter, title, weapons, skills, combatOptions }) => {

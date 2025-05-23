@@ -27,6 +27,7 @@ const weapons: Weapon[] = [
     strScaling: 1,
     agiScaling: 0.5,
     intScaling: 0,
+    damageMultiplier: 1.0,
   },
 ];
 
@@ -37,6 +38,7 @@ const skills: Skill[] = [
     damage: 1.5,
     cooldown: 3,
     description: 'Un potente colpo che infligge danni elevati', // Aggiunto
+    requirements: { minStats: { strength: 1 } },
     type: 'attack', // Aggiunto
   },
 ];

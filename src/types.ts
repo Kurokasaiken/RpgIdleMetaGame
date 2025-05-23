@@ -20,6 +20,9 @@ export interface Weapon {
   strScaling: number;
   agiScaling: number;
   intScaling: number;
+  damageMultiplier: number;
+  icon?: string; // Aggiunto per l'icona
+  skillIds?: number[]; // Array di ID delle skill correlate all'arma
 }
 
 export interface Skill {
@@ -27,6 +30,15 @@ export interface Skill {
   name: string;
   damage: number;
   cooldown: number;
+  description: string;
+  type: string;
+  requirements: {
+    minStats: {
+      strength?: number;
+      agility?: number;
+      intelligence?: number;
+    };
+  };
 }
 
 export interface CombatOptions {
@@ -35,3 +47,5 @@ export interface CombatOptions {
   armor: boolean;
   skills: boolean;
 }
+
+export type StatRange = [number, number];

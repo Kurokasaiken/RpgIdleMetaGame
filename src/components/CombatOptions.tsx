@@ -14,13 +14,6 @@ const CombatOptionsComponent: React.FC<CombatOptionsProps> = ({ options, onOptio
     });
   };
 
-  const handleMaxTurnsChange = (value: number) => {
-    onOptionsChange({
-      ...options,
-      maxTurns: Math.max(10, Math.min(100, value))
-    });
-  };
-
   return (
     <div className="bg-gray-800 rounded-lg p-4 mb-4">
       <h3 className="text-lg font-semibold text-white mb-4">Opzioni di Combattimento</h3>
@@ -66,27 +59,6 @@ const CombatOptionsComponent: React.FC<CombatOptionsProps> = ({ options, onOptio
             />
             <span>Abilità Speciali</span>
           </label>
-        </div>
-
-        <div className="space-y-3">
-          <div className="text-white">
-            <label className="block text-sm font-medium mb-2">
-              Turni Massimi: {options.maxTurns}
-            </label>
-            <input
-              type="range"
-              min="10"
-              max="100"
-              step="5"
-              value={options.maxTurns}
-              onChange={(e) => handleMaxTurnsChange(parseInt(e.target.value))}
-              className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
-            />
-            <div className="flex justify-between text-xs text-gray-400 mt-1">
-              <span>10</span>
-              <span>100</span>
-            </div>
-          </div>
         </div>
       </div>
 

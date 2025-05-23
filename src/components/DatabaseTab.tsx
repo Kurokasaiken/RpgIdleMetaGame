@@ -179,7 +179,8 @@ export const DatabaseTab: React.FC<DatabaseTabProps> = ({ weapons, skills, setWe
 
         <div className="space-y-4">
           {weapons.map(weapon => {
-            const IconComponent = weapon.icon;
+            // Fallback to Sword icon if weapon.icon is not a valid component
+            const IconComponent = typeof weapon.icon === 'function' ? weapon.icon : Sword;
             return (
               <div key={weapon.id} className="flex items-center gap-4 p-3 border rounded">
                 <IconComponent className="w-8 h-8 text-blue-600" />

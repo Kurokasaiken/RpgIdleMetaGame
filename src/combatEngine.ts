@@ -1,6 +1,7 @@
 import { randomFromRange } from './gameData';
 import { Character, Weapon, Skill, CombatOptions, CombatResult } from './types';
 import { StatRange } from './types';
+import { getAvailableSkills } from './gameData'; // Importa la funzione
 
 export class CombatEngine {
   private calculateBaseStat(statRange: StatRange): number {
@@ -65,16 +66,19 @@ export class CombatEngine {
       throw new Error('Arma non trovata per uno dei personaggi');
     }
     
-    let fighter1 = {
+    // Popola equippedSkills usando getAvailableSkills
+    const fighter1 = {
       ...char1,
       currentHealth: this.calculateBaseStat(char1.health),
-      skillCooldowns: new Map<number, number>()
+      skillCooldowns: new Map<string, number>(),
+      equippedSkills: getAvailableSkills(char1, weapons, skills).map(skill => skill.id)
     };
     
-    let fighter2 = {
+    const fighter2 = {
       ...char2,
       currentHealth: this.calculateBaseStat(char2.health),
-      skillCooldowns: new Map<number, number>()
+      skillCooldowns: new Map<string, number>(),
+      equippedSkills: getAvailableSkills(char2, weapons, skills).map(skill => skill.id)
     };
 
     const log: string[] = [];
@@ -139,8 +143,10 @@ export class CombatEngine {
     let selectedSkill: Skill | null = null;
     if (combatOptions.skills && attacker.equippedSkills.length > 0) {
       const availableSkills = attacker.equippedSkills
-        .map((id: number) => skills.find(s => s.id === id))
-        .filter((skill: Skill | undefined): skill is Skill => skill !== undefined && (!attacker.skillCooldowns.get(skill.id) || attacker.skillCooldowns.get(skill.id) === 0));
+        .map((id: string) => skills.find(s => s.id === id))
+        .filter((skill: Skill | undefined): skill is Skill => 
+          skill !== undefined && (!attacker.skillCooldowns.get(skill.id) || attacker.skillCooldowns.get(skill.id) === 0)
+        );
       
       if (availableSkills.length > 0) {
         selectedSkill = availableSkills[Math.floor(Math.random() * availableSkills.length)];

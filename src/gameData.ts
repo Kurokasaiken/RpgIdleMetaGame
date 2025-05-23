@@ -109,34 +109,16 @@ export const initialSkills: Skill[] = [
     damage: 1.3,
     cooldown: 5,
     requirements: { minStats: { strength: 18 } }
-  },
-  {
-    id: 6,
-    name: "Passo nell'Ombra",
-    description: "Movimento rapido che aumenta la probabilità di colpo",
-    type: "physical",
-    damage: 1.1,
-    cooldown: 2,
-    requirements: { weaponTypes: ["light"], minStats: { agility: 16 } }
   }
 ];
 
 export const getAvailableSkills = (character: Character, weapons: Weapon[], skills: Skill[]): Skill[] => {
+  // Trova l'arma equipaggiata dal personaggio
   const weapon = weapons.find(w => w.id === character.weaponId);
-  if (!weapon) return [];
+  if (!weapon || !weapon.skillIds) return [];
 
-  return skills.filter(skill => {
-    if (!skill.requirements) return true;
-    
-    const { weaponTypes, minStats } = skill.requirements;
-    
-    if (weaponTypes && !weaponTypes.includes(weapon.type)) return false;
-    if (minStats?.strength && character.strength[1] < minStats.strength) return false;
-    if (minStats?.intelligence && character.intelligence[1] < minStats.intelligence) return false;
-    if (minStats?.agility && character.agility[1] < minStats.agility) return false;
-    
-    return true;
-  });
+  // Restituisce solo le skill correlate all'arma
+  return skills.filter(skill => weapon.skillIds && weapon.skillIds.includes(skill.id));
 };
 
 export const getSkillSlots = (intelligence: [number, number]): number => {
