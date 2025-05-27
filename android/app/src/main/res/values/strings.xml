@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">RpgIdleMetagame</string>
+    <string name="title_activity_main">RpgIdleMetagame</string>
+    <string name="package_name">kurokasaiken.rpgidle.metagame</string>
+    <string name="custom_url_scheme">kurokasaiken.rpgidle.metagame</string>
+</resources>
