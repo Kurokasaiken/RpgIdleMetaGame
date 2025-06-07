@@ -1,3 +1,3 @@
-# RPG Idle Metagame
+# Stat System Module
 
-Generated base project ready for Web, Mobile, and Steam.
+This directory contains the core stat system module for RpgIdleMetaGame.

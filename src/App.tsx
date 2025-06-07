@@ -1,11 +1,19 @@
+import React from 'react';
+import { BalancerProvider } from '@/core/BalancerContext';
+import { ModuleTabs } from '@/components/ModuleTabs';
 
-function App() {
+export default function App() {
   return (
-    <div className="p-4 font-sans">
-      <h1 className="text-2xl font-bold mb-4">RPG Idle Metagame</h1>
-      {/* Mount your systems */}
+    <div className="bg-gray-900 text-gray-100 min-h-screen">
+      <header className="p-4 border-b border-gray-700">
+        <h1 className="text-3xl font-bold">RPG Idle Meta Game</h1>
+      </header>
+
+      <BalancerProvider>
+        <main className="p-4">
+          <ModuleTabs />
+        </main>
+      </BalancerProvider>
     </div>
   );
 }
-
-export default App;

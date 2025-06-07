@@ -1,0 +1,55 @@
+// services/balance/BalanceStorageService.ts
+
+const STORAGE_KEY = 'stat_balancer_snapshots';
+
+export interface StatSnapshot {
+  name: string;
+  stats: Record<string, number>;
+  locked: string[];      // <— lo aggiungiamo qui
+  timestamp: number;
+}
+
+export class BalanceStorageService {
+  private static loadAll(): StatSnapshot[] {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return [];
+    try {
+      return JSON.parse(raw) as StatSnapshot[];
+    } catch {
+      return [];
+    }
+  }
+
+  private static saveAll(snapshots: StatSnapshot[]) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshots));
+  }
+
+  static saveSnapshot(name: string, stats: Record<string, number>, locked: Set<string>) {
+    const all = this.loadAll().filter((s) => s.name !== name);
+    all.push({
+      name,
+      stats,
+      locked: Array.from(locked),  // <— salviamo anche il locked
+      timestamp: Date.now(),
+    });
+    this.saveAll(all);
+  }
+
+  static loadSnapshot(name: string): StatSnapshot | undefined {
+    return this.loadAll().find((s) => s.name === name);
+  }
+
+  static loadLastSnapshot(): StatSnapshot | undefined {
+    const all = this.loadAll();
+    return all.sort((a, b) => b.timestamp - a.timestamp)[0];
+  }
+
+  static deleteSnapshot(name: string) {
+    const all = this.loadAll().filter((s) => s.name !== name);
+    this.saveAll(all);
+  }
+
+  static listSnapshotNames(): string[] {
+    return this.loadAll().map((s) => s.name);
+  }
+}

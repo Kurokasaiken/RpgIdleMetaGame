@@ -1,0 +1,11 @@
+{
+  "id": "sample",
+  "name": "Sample Module",
+  "icon": "FaPuzzlePiece",
+  "colorClass": "text-indigo-500",
+  "statIds": [],
+  "formula": null,
+  "isVisible": true,
+  "isActive": true,
+  "metadata": {}
+}

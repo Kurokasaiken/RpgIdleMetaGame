@@ -1,0 +1,402 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===== RPG FANTASY PIXEL ART STYLES ===== */
+
+/* Reset e base */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Courier New', 'Lucida Console', Monaco, monospace;
+  background: linear-gradient(135deg, #1a2e1a 0%, #1e3a1e 50%, #0f2e0f 100%);
+  color: #e8f5e8;
+  min-height: 100vh;
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+  overflow-x: hidden;
+}
+
+/* Container principale */
+.app-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  position: relative;
+}
+
+/* ===== ELEMENTI UI FANTASY ===== */
+
+/* Pulsanti stile RPG */
+.btn {
+  background: linear-gradient(145deg, #4a5568, #2d3748);
+  border: 3px solid #718096;
+  color: #f7fafc;
+  padding: 12px 24px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: bold;
+  text-transform: uppercase;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+  border-radius: 0;
+  box-shadow: 
+    inset 0 1px 0 rgba(255,255,255,0.2),
+    0 4px 0 #1a202c,
+    0 6px 10px rgba(0,0,0,0.4);
+}
+
+.btn:hover {
+  background: linear-gradient(145deg, #5a6578, #3d4758);
+  transform: translateY(-2px);
+  box-shadow: 
+    inset 0 1px 0 rgba(255,255,255,0.3),
+    0 6px 0 #1a202c,
+    0 8px 15px rgba(0,0,0,0.5);
+}
+
+.btn:active {
+  transform: translateY(2px);
+  box-shadow: 
+    inset 0 1px 0 rgba(255,255,255,0.1),
+    0 2px 0 #1a202c,
+    0 3px 5px rgba(0,0,0,0.3);
+}
+
+/* Varianti pulsanti */
+.btn-primary {
+  background: linear-gradient(145deg, #68d391, #48bb78);
+  border-color: #68d391;
+}
+
+.btn-success {
+  background: linear-gradient(145deg, #9ae6b4, #68d391);
+  border-color: #9ae6b4;
+}
+
+.btn-danger {
+  background: linear-gradient(145deg, #fc8181, #f56565);
+  border-color: #feb2b2;
+}
+
+.btn-gold {
+  background: linear-gradient(145deg, #f6e05e, #d69e2e);
+  border-color: #faf089;
+  color: #1a202c;
+}
+
+/* ===== PANNELLI E FINESTRE ===== */
+
+.panel {
+  background: linear-gradient(145deg, #2d3748, #1a202c);
+  border: 4px solid #4a5568;
+  box-shadow: 
+    inset 0 2px 0 rgba(255,255,255,0.1),
+    inset 0 -2px 0 rgba(0,0,0,0.3),
+    0 8px 20px rgba(0,0,0,0.4);
+  padding: 20px;
+  margin: 15px 0;
+  position: relative;
+}
+
+.panel::before {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  background: linear-gradient(45deg, #68d391, #9ae6b4, #c6f6d5, #f0fff4);
+  z-index: -1;
+  opacity: 0.2;
+  filter: blur(8px);
+}
+
+.panel-header {
+  background: linear-gradient(90deg, #4a5568, #2d3748);
+  border: 2px solid #718096;
+  padding: 10px 15px;
+  margin: -20px -20px 15px -20px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #f7fafc;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+/* ===== BARRE DI PROGRESSO ===== */
+
+.progress-bar {
+  width: 100%;
+  height: 24px;
+  background: #1a202c;
+  border: 3px solid #4a5568;
+  position: relative;
+  overflow: hidden;
+  margin: 10px 0;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #48bb78, #38a169);
+  transition: width 0.5s ease;
+  position: relative;
+}
+
+.progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 8px,
+    rgba(255,255,255,0.1) 8px,
+    rgba(255,255,255,0.1) 16px
+  );
+  animation: progress-shine 2s linear infinite;
+}
+
+@keyframes progress-shine {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Varianti barre */
+.progress-health .progress-fill { background: linear-gradient(90deg, #f56565, #e53e3e); }
+.progress-mana .progress-fill { background: linear-gradient(90deg, #4299e1, #3182ce); }
+.progress-exp .progress-fill { background: linear-gradient(90deg, #d69e2e, #b7791f); }
+
+/* ===== CARTE E ITEM ===== */
+
+.card {
+  background: linear-gradient(145deg, #2d3748, #1a202c);
+  border: 3px solid #4a5568;
+  padding: 15px;
+  margin: 10px;
+  transition: all 0.3s ease;
+  position: relative;
+  cursor: pointer;
+}
+
+.card:hover {
+  border-color: #68d391;
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(104, 211, 145, 0.3);
+}
+
+.card-rarity-common { border-color: #718096; }
+.card-rarity-uncommon { border-color: #68d391; }
+.card-rarity-rare { border-color: #63b3ed; }
+.card-rarity-epic { border-color: #b794f6; }
+.card-rarity-legendary { 
+  border-color: #fbb6ce;
+  box-shadow: 0 0 20px rgba(251, 182, 206, 0.4);
+  animation: legendary-glow 3s ease-in-out infinite alternate;
+}
+
+@keyframes legendary-glow {
+  from { box-shadow: 0 0 20px rgba(251, 182, 206, 0.4); }
+  to { box-shadow: 0 0 30px rgba(251, 182, 206, 0.7); }
+}
+
+/* ===== TESTO E TIPOGRAFIA ===== */
+
+h1, h2, h3, h4, h5, h6 {
+  color: #f7fafc;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+  margin-bottom: 15px;
+}
+
+h1 {
+  font-size: 2.5em;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  background: linear-gradient(90deg, #68d391, #48bb78, #38a169);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gold { color: #fbb6ce; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); }
+.text-silver { color: #e2e8f0; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); }
+.text-bronze { color: #ed8936; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); }
+.text-damage { color: #fc8181; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); }
+.text-heal { color: #9ae6b4; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); }
+.text-mana { color: #90cdf4; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); }
+
+/* ===== ANIMAZIONI IDLE ===== */
+
+.idle-float {
+  animation: idle-float 3s ease-in-out infinite;
+}
+
+@keyframes idle-float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+.idle-pulse {
+  animation: idle-pulse 2s ease-in-out infinite;
+}
+
+@keyframes idle-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.idle-glow {
+  animation: idle-glow 4s ease-in-out infinite alternate;
+}
+
+@keyframes idle-glow {
+  from { filter: drop-shadow(0 0 5px rgba(104, 211, 145, 0.5)); }
+  to { filter: drop-shadow(0 0 15px rgba(104, 211, 145, 0.8)); }
+}
+
+/* ===== EFFETTI PARTICELLE ===== */
+
+.particles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.particle {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: #9ae6b4;
+  border-radius: 50%;
+  animation: particle-float 15s linear infinite;
+}
+
+@keyframes particle-float {
+  0% {
+    transform: translateY(100vh) translateX(0px);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-10vh) translateX(100px);
+    opacity: 0;
+  }
+}
+
+/* ===== LAYOUT RESPONSIVE ===== */
+
+.grid {
+  display: grid;
+  gap: 20px;
+}
+
+.grid-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+.flex {
+  display: flex;
+  gap: 15px;
+}
+
+.flex-center {
+  justify-content: center;
+  align-items: center;
+}
+
+.flex-between {
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* ===== MEDIA QUERIES ===== */
+
+@media (max-width: 768px) {
+  .app-container {
+    padding: 10px;
+  }
+  
+  .grid-2, .grid-3, .grid-4 {
+    grid-template-columns: 1fr;
+  }
+  
+  .btn {
+    padding: 10px 16px;
+    font-size: 12px;
+  }
+  
+  h1 {
+    font-size: 2em;
+    letter-spacing: 2px;
+  }
+  
+  .panel {
+    padding: 15px;
+  }
+  
+  .card {
+    margin: 5px;
+  }
+}
+
+/* ===== UTILITÀ ===== */
+
+.hidden { display: none; }
+.invisible { visibility: hidden; }
+.no-select { user-select: none; }
+.pointer { cursor: pointer; }
+.disabled { 
+  opacity: 0.5; 
+  cursor: not-allowed; 
+  pointer-events: none; 
+}
+
+.mt-small { margin-top: 10px; }
+.mt-medium { margin-top: 20px; }
+.mt-large { margin-top: 30px; }
+
+.mb-small { margin-bottom: 10px; }
+.mb-medium { margin-bottom: 20px; }
+.mb-large { margin-bottom: 30px; }
+
+.p-small { padding: 10px; }
+.p-medium { padding: 20px; }
+.p-large { padding: 30px; }
+
+/* ===== SCROLLBAR PERSONALIZZATA ===== */
+
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1a202c;
+  border: 2px solid #4a5568;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #9f7aea, #667eea);
+  border-radius: 0;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #b794f6, #7c3aed);
+}
