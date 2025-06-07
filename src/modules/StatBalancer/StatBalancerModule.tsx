@@ -1,66 +1,39 @@
-import React from 'react';
-import { StatInput } from '@/components/ui/StatInput';
-import { StatSlider } from '@/components/ui/StatSlider';
-import { Lock, Unlock } from 'lucide-react';
+import type { MacroModule } from '../BalancerTab/types';
+import { BarChart, SlidersHorizontal } from 'lucide-react';
 
-interface Props {
-  stats: Record<string, number>;
-  onChange: (key: string, value: number) => void;
-  lockedStats: Set<string>;
-  onToggleLock: (key: string) => void;
-}
+export const StatBalancerModule: MacroModule = {
+  id: 'stat-balancer',
+  name: 'Stat Balancer',
+  icon: <SlidersHorizontal className="w-6 h-6" />,
+  colorClass: 'bg-gradient-to-br from-blue-400 to-blue-600 text-white',
+  statIds: ['strength', 'agility', 'intelligence'],
+  isVisible: true,
+  isActive: true,
 
-export const BalancerInputs: React.FC<Props> = ({
-  stats,
-  onChange,
-  lockedStats,
-  onToggleLock,
-}) => {
-  return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-      {Object.entries(stats).map(([key, value]) => {
-        const isLocked = lockedStats.has(key);
-        const label = key.charAt(0).toUpperCase() + key.slice(1);
-
-        return (
-          <div
-            key={key}
-            className="relative border rounded p-2 shadow-sm bg-gray-800"
-          >
-            {/* StatInput per inserimento numerico */}
-            <StatInput
-              label={label}
-              value={value}
-              min={0}
-              max={200}
-              step={1}
-              disabled={isLocked}
-              onChange={(val) => onChange(key, val)}
-            />
-
-            {/* StatSlider sincronizzato */}
-            <div className="mt-2">
-              <StatSlider
-                value={value}
-                min={0}
-                max={200}
-                disabled={isLocked}
-                onChange={(val) => onChange(key, val)}
-              />
-            </div>
-
-            {/* Toggle Lock */}
-            <button
-              type="button"
-              className="absolute top-2 right-2 text-gray-400 hover:text-gray-100"
-              onClick={() => onToggleLock(key)}
-              title={isLocked ? 'Sblocca stat' : 'Blocca stat'}
-            >
-              {isLocked ? <Lock size={16} /> : <Unlock size={16} />}
-            </button>
-          </div>
-        );
-      })}
+  Card: ({ module }) => (
+    <div className={`p-4 rounded-xl shadow-md ${module.colorClass}`}>
+      <div className="flex items-center space-x-2">
+        {module.icon}
+        <h2 className="text-lg font-bold">{module.name}</h2>
+      </div>
+      <p className="mt-2 text-sm">Bilancia le statistiche dei personaggi per una progressione armoniosa.</p>
     </div>
-  );
+  ),
+
+  Content: ({ module }) => (
+    <div className="p-4 space-y-4">
+      <h3 className="text-xl font-semibold flex items-center gap-2">
+        <BarChart className="w-5 h-5" />
+        Gestione {module.name}
+      </h3>
+      <p className="text-sm text-muted-foreground">
+        Qui puoi vedere l’equilibrio corrente tra le statistiche:
+      </p>
+      <ul className="list-disc pl-5 text-sm">
+        {module.statIds.map(stat => (
+          <li key={stat}>{stat}</li>
+        ))}
+      </ul>
+    </div>
+  ),
 };

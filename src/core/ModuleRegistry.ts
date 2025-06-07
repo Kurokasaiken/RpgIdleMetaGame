@@ -1,46 +1,16 @@
-import { ReactNode } from 'react';
-import { StatPanelTab } from '@/modules/StatPanel/StatPanelTab';
-import { StatBalancerModule } from '../modules/StatBalancer/StatBalancerModule';
-// Importa altri moduli quando esistono
+import type { MacroModule } from '@/modules/BalancerTab/types';
 
-export interface ModuleEntry {
-  id: string;
-  title: string;
-  icon?: ReactNode;
-  component?: React.FC;
-  isEnabled?: boolean;
-}
+const modules: MacroModule[] = Object.values(
+  import.meta.glob<true, string, { default: MacroModule }>(
+    '../modules/**/index.tsx', // <- attenzione a .tsx
+    { eager: true }
+  )
+).map((mod) => mod.default);
 
-const modules: ModuleEntry[] = [
-  {
-    id: 'stats',
-    title: 'Character Stats',
-    component: StatPanelTab,
-    isEnabled: true,
-  },
-  {
-    id: 'balance',
-    title: 'Bilanciamento Stat',
-    component: StatBalancerModule,
-    isEnabled: true,
-  },
-  {
-    id: 'combat',
-    title: 'Combat System',
-    component: undefined, // placeholder
-    isEnabled: false,
-  },
-  {
-    id: 'inventory',
-    title: 'Inventory',
-    component: undefined,
-    isEnabled: false,
-  },
-  // Aggiungi altri moduli
-];
+console.log('Moduli caricati:', modules);
 
 export const ModuleRegistry = {
-  getAll: () => modules,
-  getEnabled: () => modules.filter((m) => m.isEnabled),
-  getById: (id: string) => modules.find((m) => m.id === id),
+  getAll: (): MacroModule[] => modules,
+  getEnabled: (): MacroModule[] => modules.filter((m) => m.isActive),
+  getById: (id: string): MacroModule | undefined => modules.find((m) => m.id === id),
 };

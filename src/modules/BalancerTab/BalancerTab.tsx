@@ -14,6 +14,10 @@ interface Props {
 export default function BalancerTab({ module }: Props) {
   const { stats, setStat, lockedStats, toggleLock, listSnapshotNames } = useBalancerContext();
 
+  console.log('stats from context:', stats);
+console.log('lockedStats:', lockedStats);
+
+
   useEffect(() => {
     const last = localStorage.getItem('lastSnapshotName');
     const snap = last ? BalanceStorageService.loadSnapshot(last) : undefined;
