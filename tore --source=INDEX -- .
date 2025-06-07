@@ -1,0 +1,54 @@
+[1mdiff --git a/.envrc b/.envrc[m
+[1mnew file mode 100644[m
+[1mindex 0000000..2f4a7df[m
+[1m--- /dev/null[m
+[1m+++ b/.envrc[m
+[36m@@ -0,0 +1 @@[m
+[32m+[m[32muse nvm[m
+[1mdiff --git a/.nvmrc b/.nvmrc[m
+[1mnew file mode 100644[m
+[1mindex 0000000..2a393af[m
+[1m--- /dev/null[m
+[1m+++ b/.nvmrc[m
+[36m@@ -0,0 +1 @@[m
+[32m+[m[32m20.18.0[m
+[1mdiff --git a/.vscode/settings.json b/.vscode/settings.json[m
+[1mnew file mode 100644[m
+[1mindex 0000000..3b66410[m
+[1m--- /dev/null[m
+[1m+++ b/.vscode/settings.json[m
+[36m@@ -0,0 +1,3 @@[m
+[32m+[m[32m{[m
+[32m+[m[32m    "git.ignoreLimitWarning": true[m
+[32m+[m[32m}[m
+\ No newline at end of file[m
+[1mdiff --git a/README.md b/README.md[m
+[1mindex 9b81b0c..a7cb8e2 100644[m
+[1m--- a/README.md[m
+[1m+++ b/README.md[m
+[36m@@ -1,3 +1,3 @@[m
+[31m-# RPG Idle Metagame[m
+[32m+[m[32m# Stat System Module[m
+ [m
+[31m-Generated base project ready for Web, Mobile, and Steam.[m
+\ No newline at end of file[m
+[32m+[m[32mThis directory contains the core stat system module for RpgIdleMetaGame.[m
+[1mdiff --git a/StatBalancerFixes.zip b/StatBalancerFixes.zip[m
+[1mnew file mode 100644[m
+[1mindex 0000000..0bae0b4[m
+Binary files /dev/null and b/StatBalancerFixes.zip differ
+[1mdiff --git a/dist/assets/index-C5leQMkY.js b/dist/assets/index-C5leQMkY.js[m
+[1mnew file mode 100644[m
+[1mindex 0000000..0ec2aa0[m
+[1m--- /dev/null[m
+[1m+++ b/dist/assets/index-C5leQMkY.js[m
+[36m@@ -0,0 +1,40 @@[m
+[32m+[m[32m(function(){const H=document.createElement("link").relList;if(H&&H.supports&&H.supports("modulepreload"))return;for(const A of document.querySelectorAll('link[rel="modulepreload"]'))Ne(A);new MutationObserver(A=>{for(const Y of A)if(Y.type==="childList")for(const fe of Y.addedNodes)fe.tagName==="LINK"&&fe.rel==="modulepreload"&&Ne(fe)}).observe(document,{childList:!0,subtree:!0});function m(A){const Y={};return A.integrity&&(Y.integrity=A.integrity),A.referrerPolicy&&(Y.referrerPolicy=A.referrerPolicy),A.crossOrigin==="use-credentials"?Y.credentials="include":A.crossOrigin==="anonymous"?Y.credentials="omit":Y.credentials="same-origin",Y}function Ne(A){if(A.ep)return;A.ep=!0;const Y=m(A);fetch(A.href,Y)}})();function Lc(T){return T&&T.__esModule&&Object.prototype.hasOwnProperty.call(T,"default")?T.default:T}var Eo={exports:{}},hr={},_o={exports:{}},M={};/**[m
+[32m+[m[32m * @license React[m
+[32m+[m[32m * react.production.min.js[m
+[32m+[m[32m *[m
+[32m+[m[32m * Copyright (c) Facebook, Inc. and its affiliates.[m
+[32m+[m[32m *[m
+[32m+[m[32m * This source code is licensed under the MIT license found in the[m
+[32m+[m[32m * LICENSE file in the root directory of this source tree.[m
+[32m+[m[32m */var ka;function Tc(){if(ka)return M;ka=1;var T=Symbol.for("react.element"),H=Symbol.for("react.portal"),m=Symbol.for("react.fragment"),Ne=Symbol.for("react.strict_mode"),A=Symbol.for("react.profiler"),Y=Symbol.for("react.provider"),fe=Symbol.for("react.context"),ce=Symbol.for("react.forward_ref"),$=Symbol.for("react.suspense"),_e=Symbol.for("react.memo"),ye=Symbol.for("react.lazy"),ee=Symbol.iterator;function Z(f){return f===null||typeof f!="object"?null:(f=ee&&f[ee]||f["@@iterator"],typeof f=="function"?f:null)}var He={isMounted:function(){return!1},enqueueForceUpdate:function(){},enqueueReplaceState:function(){},enqueueSetState:function(){}},$e=Object.assign,J={};function W(f,h,O){this.props=f,this.context=h,this.refs=J,this.updater=O||He}W.prototype.isReactComponent={},W.prototype.setState=function(f,h){if(typeof f!="object"&&typeof f!="function"&&f!=null)throw Error("setState(...): takes an object of state variables to update or a function which returns an object of state variables.");this.updater.enqueueSetState(this,f,h,"setState")},W.prototype.forceUpdate=function(f){this.updater.enqueueForceUpdate(this,f,"forceUpdate")};function vt(){}vt.prototype=W.prototype;function it(f,h,O){this.props=f,this.context=h,this.refs=J,this.updater=O||He}var Je=it.prototype=new vt;Je.constructor=it,$e(Je,W.prototype),Je.isPureReactComponent=!0;var ge=Array.isArray,qe=Object.prototype.hasOwnProperty,Ce={current:null},ze={key:!0,ref:!0,__self:!0,__source:!0};function We(f,h,O){var D,F={},j=null,Q=null;if(h!=null)for(D in h.ref!==void 0&&(Q=h.ref),h.key!==void 0&&(j=""+h.key),h)qe.call(h,D)&&!ze.hasOwnProperty(D)&&(F[D]=h[D]);var V=arguments.length-2;if(V===1)F.children=O;else if(1<V){for(var q=Array(V),je=0;je<V;je++)q[je]=arguments[je+2];F.children=q}if(f&&f.defaultProps)for(D in V=f.defaultProps,V)F[D]===void 0&&(F[D]=V[D]);return{$$typeof:T,type:f,key:j,ref:Q,props:F,_owner:Ce.current}}function xt(f,h){return{$$typeof:T,type:f.type,key:h,ref:f.ref,props:f.props,_owner:f._owner}}function ht(f){return typeof f=="object"&&f!==null&&f.$$typeof===T}function Qt(f){var h={"=":"=0",":":"=2"};return"$"+f.replace(/[=:]/g,function(O){return h[O]})}var st=/\/+/g;function Fe(f,h){return typeof f=="object"&&f!==null&&f.key!=null?Qt(""+f.key):h.toString(36)}function be(f,h,O,D,F){var j=typeof f;(j==="undefined"||j==="boolean")&&(f=null);var Q=!1;if(f===null)Q=!0;else switch(j){case"string":case"number":Q=!0;break;case"object":switch(f.$$typeof){case T:case H:Q=!0}}if(Q)return Q=f,F=F(Q),f=D===""?"."+Fe(Q,0):D,ge(F)?(O="",f!=null&&(O=f.replace(st,"$&/")+"/"),be(F,h,O,"",function(je){return je})):F!=null&&(ht(F)&&(F=xt(F,O+(!F.key||Q&&Q.key===F.key?"":(""+F.key).replace(st,"$&/")+"/")+f)),h.push(F)),1;if(Q=0,D=D===""?".":D+":",ge(f))for(var V=0;V<f.length;V++){j=f[V];var q=D+Fe(j,V);Q+=be(j,h,O,q,F)}else if(q=Z(f),typeof q=="function")for(f=q.call(f),V=0;!(j=f.next()).done;)j=j.value,q=D+Fe(j,V++),Q+=be(j,h,O,q,F);else if(j==="object")throw h=String(f),Error("Objects are not valid as a React child (found: "+(h==="[object Object]"?"object with keys {"+Object.keys(f).join(", ")+"}":h)+"). If you meant to render a collection of children, use an array instead.");return Q}function at(f,h,O){if(f==null)return f;var D=[],F=0;return be(f,D,"","",function(j){return h.call(O,j,F++)}),D}function Le(f){if(f._status===-1){var h=f._result;h=h(),h.then(function(O){(f._status===0||f._status===-1)&&(f._status=1,f._result=O)},function(O){(f._status===0||f._status===-1)&&(f._status=2,f._result=O)}),f._status===-1&&(f._status=0,f._result=h)}if(f._status===1)return f._result.default;throw f._result}var re={current:null},S={transition:null},L={ReactCurrentDispatcher:re,ReactCurrentBatchConfig:S,ReactCurrentOwner:Ce};function _(){throw Error("act(...) is not supported in production builds of React.")}return M.Children={map:at,forEach:function(f,h,O){at(f,function(){h.apply(this,arguments)},O)},count:function(f){var h=0;return at(f,function(){h++}),h},toArray:function(f){return at(f,function(h){return h})||[]},only:function(f){if(!ht(f))throw Error("React.Children.only expected to receive a single React element child.");return f}},M.Component=W,M.Fragment=m,M.Profiler=A,M.PureComponent=it,M.StrictMode=Ne,M.Suspense=$,M.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED=L,M.act=_,M.cloneElement=function(f,h,O){if(f==null)throw Error("React.cloneElement(...): The argument must be a React element, but you passed "+f+".");var D=$e({},f.props),F=f.key,j=f.ref,Q=f._owner;if(h!=null){if(h.ref!==void 0&&(j=h.ref,Q=Ce.current),h.key!==void 0&&(F=""+h.key),f.type&&f.type.defaultProps)var V=f.type.defaultProps;for(q in h)qe.call(h,q)&&!ze.hasOwnProperty(q)&&(D[q]=h[q]===void 0&&V!==void 0?V[q]:h[q])}var q=arguments.length-2;if(q===1)D.children=O;else if(1<q){V=Array(q);for(var je=0;je<q;je++)V[je]=arguments[je+2];D.children=V}return{$$typeof:T,type:f.type,key:F,ref:j,props:D,_owner:Q}},M.createContext=function(f){return f={$$typeof:fe,_currentValue:f,_currentValue2:f,_threadCount:0,Provider:null,Consumer:null,_defaultValue:null,_globalName:null},f.Provider={$$typeof:Y,_context:f},f.Consumer=f},M.createElement=We,M.createFactory=function(f){var h=We.bind(null,f);return h.type=f,h},M.createRef=function(){return{current:null}},M.forwardRef=function(f){return{$$typeof:ce,render:f}},M.isValidElement=ht,M.lazy=function(f){return{$$typeof:ye,_payload:{_status:-1,_result:f},_init:Le}},M.memo=function

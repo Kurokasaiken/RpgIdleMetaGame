@@ -1,4 +1,3 @@
-// core/StatContext.tsx
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { StatDefinitionService } from '@/services/StatDefinitionService';
 import { BalanceStorageService } from '@/services/BalanceStorageService';
@@ -14,7 +13,6 @@ interface StatContextValue {
 }
 
 const StatContext = createContext<StatContextValue | undefined>(undefined);
-const listSnapshotNames = () => BalanceStorageService.listSnapshotNames();
 
 export const useStatContext = (): StatContextValue => {
   const ctx = useContext(StatContext);
@@ -24,9 +22,7 @@ export const useStatContext = (): StatContextValue => {
   return ctx;
 };
 
-export const StatProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+export const StatProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [stats, setStats] = useState<Record<string, number>>({});
   const [locked, setLocked] = useState<Set<string>>(new Set());
 
@@ -41,22 +37,21 @@ export const StatProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-function toggleLock(statId: string) {
-  setLocked((prev) => {
-    const newSet = new Set(prev);
-    if (newSet.has(statId)) newSet.delete(statId);
-    else newSet.add(statId);
-    return newSet;
-  });
-}
+  const toggleLock = (statId: string) => {
+    setLocked((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(statId)) newSet.delete(statId);
+      else newSet.add(statId);
+      return newSet;
+    });
+  };
 
-const registerStat = (key: string) => {
-  setStats(prev => {
-    if (prev.hasOwnProperty(key)) return prev;
-    return { ...prev, [key]: 0 };
-  });
-};
-
+  const registerStat = (key: string) => {
+    setStats((prev) => {
+      if (key in prev) return prev;
+      return { ...prev, [key]: 0 };
+    });
+  };
 
   const unregisterStat = (key: string) => {
     setStats((prev) => {
@@ -70,18 +65,19 @@ const registerStat = (key: string) => {
     });
   };
 
+  const listSnapshotNames = () => BalanceStorageService.listSnapshotNames();
+
   return (
-  <StatContext.Provider value={{
-    stats,
-    setStat,
-    locked,
-    toggleLock,
-    registerStat,
-    unregisterStat,
-    listSnapshotNames
-    // etc.
-  }}>
-    {children}
-  </StatContext.Provider>
+    <StatContext.Provider value={{
+      stats,
+      setStat,
+      locked,
+      toggleLock,
+      registerStat,
+      unregisterStat,
+      listSnapshotNames
+    }}>
+      {children}
+    </StatContext.Provider>
   );
 };

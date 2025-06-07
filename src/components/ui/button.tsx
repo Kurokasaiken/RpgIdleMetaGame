@@ -19,9 +19,6 @@ const sizeClasses: Record<string, string> = {
   lg: 'px-6 py-3 text-lg',
 };
 
-/**
- * Button: bottone flessibile con varianti di stile e dimensione.
- */
 export const Button: React.FC<ButtonProps> = ({
   variant = 'default',
   size = 'md',
@@ -31,14 +28,7 @@ export const Button: React.FC<ButtonProps> = ({
 }) => {
   return (
     <button
-      className={
-        'inline-flex items-center justify-center font-semibold rounded-md transition ' +
-        variantClasses[variant] +
-        ' ' +
-        sizeClasses[size] +
-        ' ' +
-        className
-      }
+      className={`${variantClasses[variant]} ${sizeClasses[size]} rounded-md font-semibold ${className}`}
       {...props}
     >
       {children}

@@ -1,9 +1,10 @@
-// src/modules/BalancerTab/BalancerTab.tsx
-import React, { useEffect, useState } from 'react';
-import { StatDefinitionService } from '@/services/StatDefinitionService';
-import { BalanceStorageService, StatSnapshot } from '@/services/BalanceStorageService';
+/* src/modules/BalancerTab/BalancerTab.tsx */
+import React, { useEffect } from 'react';
+import { BalanceStorageService } from '@/services/BalanceStorageService';
 import { BalancerInputs } from './BalancerInputs';
 import { Button } from '@/components/ui/button';
+import { StatDefinitionService } from '@/services/StatDefinitionService';
+import { useBalancerContext } from '@/core/BalancerContext';
 import type { MacroModule } from './types';
 
 interface Props {
@@ -11,50 +12,37 @@ interface Props {
 }
 
 export default function BalancerTab({ module }: Props) {
-  const [stats, setStats] = useState<Record<string, number>>({});
-  const [locked, setLocked] = useState<Set<string>>(new Set());
+  const { stats, setStat, lockedStats, toggleLock, listSnapshotNames } = useBalancerContext();
 
   useEffect(() => {
-    const snap = BalanceStorageService.loadLastSnapshot();
+    const last = localStorage.getItem('lastSnapshotName');
+    const snap = last ? BalanceStorageService.loadSnapshot(last) : undefined;
     if (snap) {
-      setStats(snap.stats);
-      setLocked(new Set(snap.locked ?? []));
-    } else {
-      setStats(StatDefinitionService.loadDefinitions());
+      Object.entries(snap.stats).forEach(([k, v]) => setStat(k, v));
+      snap.locked?.forEach(k => toggleLock(k));
+        } else {
+     // Carica i default se non c’è snapshot
+       const defs = StatDefinitionService.getDefaultStats();
+       Object.entries(defs).forEach(([k, v]) => setStat(k, v));
     }
   }, []);
-
-  const handleStatChange = (key: string, value: number) => {
-    if (locked.has(key)) return;
-    setStats(prev => {
-      const updated = { ...prev, [key]: value };
-      return StatDefinitionService.recalculate(updated, locked);
-    });
-  };
-
-  const toggleLock = (key: string) => {
-    setLocked(prev => {
-      const s = new Set(prev);
-      if (s.has(key)) s.delete(key);
-      else s.add(key);
-      return s;
-    });
-  };
 
   const saveSnapshot = () => {
     const name = prompt('Nome snapshot:');
     if (!name) return;
-    // <-- qui passiamo name, stats e locked direttamente
-    BalanceStorageService.saveSnapshot(name, stats, locked);
+    BalanceStorageService.saveSnapshot(name, stats, lockedStats);
+    localStorage.setItem('lastSnapshotName', name);
   };
 
   const loadSnapshot = () => {
-    const name = prompt('Nome snapshot da caricare:');
+    const choices = listSnapshotNames();
+    const name = prompt(`Carica snapshot (scegli tra: ${choices.join(', ')})`);
     if (!name) return;
     const snap = BalanceStorageService.loadSnapshot(name);
     if (snap) {
-      setStats(snap.stats);
-      setLocked(new Set(snap.locked ?? []));
+      Object.entries(snap.stats).forEach(([k, v]) => setStat(k, v));
+      snap.locked?.forEach(k => toggleLock(k));
+      localStorage.setItem('lastSnapshotName', name);
     } else {
       alert('Snapshot non trovato!');
     }
@@ -62,15 +50,8 @@ export default function BalancerTab({ module }: Props) {
 
   return (
     <div className="p-4 space-y-4">
-      <h1 className="text-xl font-bold">Modulo di Bilanciamento Stat</h1>
-
-      <BalancerInputs
-        stats={stats}
-        lockedStats={locked}
-        onChange={handleStatChange}
-        onToggleLock={toggleLock}
-      />
-
+      <h1 className="text-xl font-bold">{module.name}</h1>
+      <BalancerInputs />
       <div className="flex gap-2">
         <Button onClick={saveSnapshot}>Salva Snapshot</Button>
         <Button onClick={loadSnapshot}>Carica Snapshot</Button>

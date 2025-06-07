@@ -1,85 +1,78 @@
-import React, { createContext, useContext, useState } from 'react';
-import type { MacroModule } from '@/modules/SampleModule/types';
+/* src/core/BalancerContext.tsx */
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { StatDefinitionService } from '@/services/StatDefinitionService';
+import { BalanceStorageService } from '@/services/BalanceStorageService';
+import type { MacroModule } from '@/modules/BalancerTab/types';
 
-// 1. Autodiscovery di ogni "index.tsx" sotto src/modules/…
-const modulesFiles = import.meta.glob('../modules/**/index.tsx', { eager: true });
-
-type LoadedModule = MacroModule & { Card: React.FC<any>; Content: React.FC<any> };
-type AllModulesMap = Record<string, LoadedModule>;
-
-const allModules: AllModulesMap = {};
-for (const path in modulesFiles) {
-  const mod = (modulesFiles[path] as any).default as LoadedModule;
-  allModules[mod.id] = mod;
+interface BalancerContextValue {
+  stats: Record<string, number>;
+  setStat: (key: string, value: number) => void;
+  lockedStats: Set<string>;
+  toggleLock: (key: string) => void;
+  modules: Record<string, MacroModule>;
+  toggleModuleVisible: (id: string) => void;
+  toggleModuleActive: (id: string) => void;
+  registerStat: (key: string) => void;
+  unregisterStat: (key: string) => void;
+  listSnapshotNames: () => string[];
 }
 
-interface BalancerContextType {
-  modules: AllModulesMap;
-  toggleModuleVisible: (moduleId: string) => void;
-  toggleModuleActive: (moduleId: string) => void;
-  ricalcolaModulo: (moduleId: string) => void;
-}
+const BalancerContext = createContext<BalancerContextValue | undefined>(undefined);
 
-export const BalancerContext = createContext<BalancerContextType | undefined>(undefined);
+export const useBalancerContext = (): BalancerContextValue => {
+  const ctx = useContext(BalancerContext);
+  if (!ctx) throw new Error('useBalancerContext deve essere usato dentro <BalancerProvider>');
+  return ctx;
+};
 
 export const BalancerProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [modules, setModules] = useState<AllModulesMap>(() => {
-    const cloned: AllModulesMap = {};
-    for (const id in allModules) {
-      cloned[id] = { ...allModules[id] };
-      cloned[id].statIds = [...allModules[id].statIds];
-    }
-    return cloned;
-  });
+  const [stats, setStats] = useState<Record<string, number>>({});
+  const [lockedStats, setLockedStats] = useState<Set<string>>(new Set());
+  const [modules, setModules] = useState<Record<string, MacroModule>>({});
 
-  const toggleModuleVisible = (moduleId: string) => {
-    setModules(prev => {
-      const m = prev[moduleId];
-      if (!m) return prev;
-      return {
-        ...prev,
-        [moduleId]: { ...m, isVisible: !m.isVisible }
-      };
+  useEffect(() => {
+    setStats(StatDefinitionService.getDefaultStats());
+    // carica moduli da ModuleRegistry
+    import('@/core/ModuleRegistry').then(({ ModuleRegistry }) => {
+      const all = ModuleRegistry.getAll().reduce((acc, m) => ({ ...acc, [m.id]: m }), {} as any);
+      setModules(all);
+    });
+  }, []);
+
+  const setStat = (key: string, value: number) => {
+    if (!lockedStats.has(key)) setStats(prev => ({ ...prev, [key]: value }));
+  };
+
+  const toggleLock = (key: string) => {
+    setLockedStats(prev => {
+      const next = new Set(prev);
+      prev.has(key) ? next.delete(key) : next.add(key);
+      return next;
     });
   };
 
-  const toggleModuleActive = (moduleId: string) => {
-    setModules(prev => {
-      const m = prev[moduleId];
-      if (!m) return prev;
-      return {
-        ...prev,
-        [moduleId]: { ...m, isActive: !m.isActive }
-      };
-    });
+  const toggleModuleVisible = (id: string) => {
+    setModules(prev => ({
+      ...prev,
+      [id]: { ...prev[id], isVisible: !prev[id].isVisible }
+    }));
   };
 
-  const ricalcolaModulo = (moduleId: string) => {
-    const m = modules[moduleId];
-    if (!m || !m.isActive) return;
-    m.statIds.forEach((statId) => {
-      console.log(`[Balancer] Ricalcolando stat "\${statId}" del modulo "\${moduleId}"`);
-    });
-  };
+  const toggleModuleActive = (id: string) => {
+    setModules(prev => ({
+      ...prev,
+      [id]: { ...prev[id], isActive: !prev[id].isActive }
+    }));
+  };  const registerStat = (key: string) => { /* ... */ };
+
+
+  const unregisterStat = (key: string) => { /* ... */ };
+  const listSnapshotNames = () => BalanceStorageService.listSnapshotNames();
 
   return (
     <BalancerContext.Provider
-      value={{
-        modules,
-        toggleModuleVisible,
-        toggleModuleActive,
-        ricalcolaModulo
-      }}
-    >
+      value={{ stats, setStat, lockedStats, toggleLock, modules, toggleModuleVisible, toggleModuleActive, registerStat, unregisterStat, listSnapshotNames }}>
       {children}
     </BalancerContext.Provider>
   );
 };
-
-export function useBalancerContext(): BalancerContextType {
-  const ctx = useContext(BalancerContext);
-  if (!ctx) {
-    throw new Error('useBalancerContext deve essere usato all’interno di <BalancerProvider>');
-  }
-  return ctx;
-}

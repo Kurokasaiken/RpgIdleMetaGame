@@ -1,12 +1,16 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useStatContext } from '@/core/StatContext';
 import { BalanceStorageService } from "../../services/BalanceStorageService";
 
 // SnapshotControls.tsx
 export const SnapshotControls = () => {
-  const { stats, setStat, locked, toggleLock, registerStat, unregisterStat } = StatContext();
-  const [snapshots, setSnapshots] = useState<string[]>(BalanceStorageService.listSnapshotsNames());
+  const { stats, setStat, locked, toggleLock, registerStat, unregisterStat } = useStatContext();
+  const [snapshots, setSnapshots] = useState<string[]>([]);
+    useEffect(() => {
+  setSnapshots(BalanceStorageService.listSnapshotNames());
+}, []);
+
 
   const loadSnapshot = (name: string) => {
     // Implement snapshot loading logic here

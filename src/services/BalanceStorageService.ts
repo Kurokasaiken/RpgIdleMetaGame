@@ -1,11 +1,9 @@
-// services/balance/BalanceStorageService.ts
-
 const STORAGE_KEY = 'stat_balancer_snapshots';
 
 export interface StatSnapshot {
   name: string;
   stats: Record<string, number>;
-  locked: string[];      // <— lo aggiungiamo qui
+  locked: string[];
   timestamp: number;
 }
 
@@ -29,7 +27,7 @@ export class BalanceStorageService {
     all.push({
       name,
       stats,
-      locked: Array.from(locked),  // <— salviamo anche il locked
+      locked: Array.from(locked),
       timestamp: Date.now(),
     });
     this.saveAll(all);
@@ -37,11 +35,6 @@ export class BalanceStorageService {
 
   static loadSnapshot(name: string): StatSnapshot | undefined {
     return this.loadAll().find((s) => s.name === name);
-  }
-
-  static loadLastSnapshot(): StatSnapshot | undefined {
-    const all = this.loadAll();
-    return all.sort((a, b) => b.timestamp - a.timestamp)[0];
   }
 
   static deleteSnapshot(name: string) {

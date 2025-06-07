@@ -1,106 +1,66 @@
-// src/modules/StatBalancer/StatBalancerModule.tsx
-import React, { useEffect, useState } from 'react';
-import { BalancerInputs } from './BalancerInputs';
-import { BalanceStorageService, StatSnapshot } from '@/services/BalanceStorageService';
-import { useStatContext } from '@/core/StatContext';
-import { Button } from '@/components/ui/button';
+import React from 'react';
+import { StatInput } from '@/components/ui/StatInput';
+import { StatSlider } from '@/components/ui/StatSlider';
+import { Lock, Unlock } from 'lucide-react';
 
-export const StatBalancerModule: React.FC = () => {
-  const { stats, setStat, locked, toggleLock, registerStat, unregisterStat } = useStatContext();
-  const [snapshotName, setSnapshotName] = useState<string>('');
-  const [snapshots, setSnapshots] = useState<string[]>([]);
+interface Props {
+  stats: Record<string, number>;
+  onChange: (key: string, value: number) => void;
+  lockedStats: Set<string>;
+  onToggleLock: (key: string) => void;
+}
 
-  useEffect(() => {
-    // registro le base stat (una tantum)
-    registerStat('hp');
-    registerStat('damage');
-    registerStat('hitToKo');
-    // carico i nomi degli snapshot
-    setSnapshots(BalanceStorageService.listSnapshotNames());
-  }, [registerStat]);
-
-  const handleSave = () => {
-    if (!snapshotName.trim()) {
-      alert('Inserisci un nome per lo snapshot!');
-      return;
-    }
-    // NEW: passiamo name, stats e locked separati
-    BalanceStorageService.saveSnapshot(snapshotName, stats, locked);
-    setSnapshots(BalanceStorageService.listSnapshotNames());
-    setSnapshotName('');
-  };
-
-  const handleLoad = (name: string) => {
-    const snap = BalanceStorageService.loadSnapshot(name);
-    if (!snap) {
-      alert('Snapshot non trovato!');
-      return;
-    }
-    // deregistro tutte le stat correnti
-    Object.keys(stats).forEach(k => unregisterStat(k));
-    // registro e setto quelle salvate
-    Object.entries(snap.stats).forEach(([k, v]) => {
-      registerStat(k);
-      setStat(k, v);
-    });
-    // ripristino i lock: prima sblocco tutto, poi riapplico i lock salvati
-    Array.from(locked).forEach((k) => toggleLock(k));
-    snap.locked.forEach((k) => toggleLock(k));
-  };
-
-  const handleDelete = (name: string) => {
-    if (!confirm(`Eliminare snapshot "${name}"?`)) return;
-    BalanceStorageService.deleteSnapshot(name);
-    setSnapshots(BalanceStorageService.listSnapshotNames());
-  };
-
+export const BalancerInputs: React.FC<Props> = ({
+  stats,
+  onChange,
+  lockedStats,
+  onToggleLock,
+}) => {
   return (
-    <div className="p-4 space-y-4 bg-gray-900 text-white">
-      <h1 className="text-2xl font-bold">Bilanciamento Statistiche</h1>
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      {Object.entries(stats).map(([key, value]) => {
+        const isLocked = lockedStats.has(key);
+        const label = key.charAt(0).toUpperCase() + key.slice(1);
 
-      {/* Input + Salva */}
-      <div className="flex gap-2 items-center">
-        <input
-          type="text"
-          placeholder="Nome snapshot"
-          value={snapshotName}
-          onChange={e => setSnapshotName(e.target.value)}
-          className="px-2 py-1 rounded border border-gray-700 bg-gray-800 text-white"
-        />
-        <Button onClick={handleSave}>Salva</Button>
-      </div>
-
-      {/* Lista snapshot */}
-      <div className="flex flex-wrap gap-2">
-        {snapshots.map(name => (
+        return (
           <div
-            key={name}
-            className="flex items-center gap-1 border rounded px-2 py-1 bg-gray-800"
+            key={key}
+            className="relative border rounded p-2 shadow-sm bg-gray-800"
           >
-            <span className="font-mono text-white">{name}</span>
+            {/* StatInput per inserimento numerico */}
+            <StatInput
+              label={label}
+              value={value}
+              min={0}
+              max={200}
+              step={1}
+              disabled={isLocked}
+              onChange={(val) => onChange(key, val)}
+            />
+
+            {/* StatSlider sincronizzato */}
+            <div className="mt-2">
+              <StatSlider
+                value={value}
+                min={0}
+                max={200}
+                disabled={isLocked}
+                onChange={(val) => onChange(key, val)}
+              />
+            </div>
+
+            {/* Toggle Lock */}
             <button
-              onClick={() => handleLoad(name)}
-              className="text-blue-400 hover:text-blue-300"
+              type="button"
+              className="absolute top-2 right-2 text-gray-400 hover:text-gray-100"
+              onClick={() => onToggleLock(key)}
+              title={isLocked ? 'Sblocca stat' : 'Blocca stat'}
             >
-              ↻
-            </button>
-            <button
-              onClick={() => handleDelete(name)}
-              className="text-red-400 hover:text-red-300"
-            >
-              ✕
+              {isLocked ? <Lock size={16} /> : <Unlock size={16} />}
             </button>
           </div>
-        ))}
-      </div>
-
-      {/* Griglia di input/stat con slider */}
-      <BalancerInputs
-        stats={stats}
-        lockedStats={locked}
-        onChange={(k, v) => setStat(k, v)}
-        onToggleLock={toggleLock}
-      />
+        );
+      })}
     </div>
   );
 };

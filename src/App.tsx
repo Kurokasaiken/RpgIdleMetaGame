@@ -1,3 +1,4 @@
+/* src/App.tsx */
 import React from 'react';
 import { BalancerProvider } from '@/core/BalancerContext';
 import { ModuleTabs } from '@/components/ModuleTabs';
@@ -9,6 +10,7 @@ export default function App() {
         <h1 className="text-3xl font-bold">RPG Idle Meta Game</h1>
       </header>
 
+      {/* Avvolgi ModuleTabs dentro il provider */}
       <BalancerProvider>
         <main className="p-4">
           <ModuleTabs />
