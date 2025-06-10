@@ -5,21 +5,19 @@ import { useBalancerContext } from '@/core/BalancerContext';
 
 export const ModuleTabs: React.FC = () => {
   const { modules } = useBalancerContext();
-  const ordered = Object.values(modules).filter(m => m.isVisible).sort((a, b) => a.name.localeCompare(b.name));
-  const firstId = ordered[0]?.id ?? '';
-console.log('modules from context:', modules);
+  const visible = Object.values(modules).filter(m => m.isVisible);
+  const firstId = visible[0]?.id || '';
+
   return (
-    
     <Tabs defaultValue={firstId} className="w-full">
       <Tabs.List>
-        {ordered.map(mod => (
+        {visible.map(mod => (
           <Tabs.Trigger key={mod.id} value={mod.id}>
             {mod.name}
           </Tabs.Trigger>
         ))}
       </Tabs.List>
-
-      {ordered.map(mod => (
+      {visible.map(mod => (
         <Tabs.Content key={mod.id} value={mod.id}>
           <div className="p-4 bg-gray-800 min-h-screen">
             <mod.Card module={mod} />

@@ -1,72 +1,52 @@
-/* src/modules/BalancerTab/BalancerTab.tsx */
 import React, { useEffect } from 'react';
-import { BalanceStorageService } from '@/services/BalanceStorageService';
-import { BalancerInputs } from './BalancerInputs';
-import { Button } from '@/components/ui/button';
-import { StatDefinitionService } from '@/services/StatDefinitionService';
 import { useBalancerContext } from '@/core/BalancerContext';
-import type { MacroModule } from './types';
-import type { StatState } from './types';
+import { MacroCard } from '@/components/ui/MacroCard';
 
-interface Props {
-  module: MacroModule;
-}
+export default function BalancerTab() {
+  const {
+    cardStates,
+    setCardStates,
+    saveSnapshot,
+    loadSnapshot,
+    listSnapshotNames,
+  } = useBalancerContext();
 
-export default function BalancerTab({ module }: Props) {
-  const { stats, setStatValue, lockedStats, toggleLock, listSnapshotNames } = useBalancerContext();
-
-  console.log('stats from context:', stats);
-console.log('lockedStats:', lockedStats);
-
-
+  // all mount, se non ci sono card, carica snapshot o crea Base
   useEffect(() => {
-    const last = localStorage.getItem('lastSnapshotName');
-    const snap = last ? BalanceStorageService.loadSnapshot(last) : undefined;
-    if (snap) {
-      Object.entries(snap.stats as Record<string, StatState>).forEach(([k, stat]) =>
-  setStatValue(k, stat.value)
-);
-
-      snap.locked?.forEach(k => toggleLock(k));
-        } else {
-     // Carica i default se non c’è snapshot
-       const defs = StatDefinitionService.getDefaultStats();
-       Object.entries(defs).forEach(([k, v]) => setStatValue(k, v));
+    if (Object.keys(cardStates).length === 0) {
+      const last = listSnapshotNames().slice(-1)[0];
+      if (last) loadSnapshot(last);
+      else setCardStates({
+        'base-card': {
+          id: 'base-card',
+          name: 'Bilanciamento Base',
+          icon: '⚔️',
+          collapsed: false,
+          active: true,
+          stats: [],
+          subCards: [],
+        },
+      });
     }
   }, []);
 
-  const saveSnapshot = () => {
-    const name = prompt('Nome snapshot:');
-    if (!name) return;
-    BalanceStorageService.saveSnapshot(name, stats, lockedStats);
-    localStorage.setItem('lastSnapshotName', name);
-  };
-
-  const loadSnapshot = () => {
-    const choices = listSnapshotNames();
-    const name = prompt(`Carica snapshot (scegli tra: ${choices.join(', ')})`);
-    if (!name) return;
-    const snap = BalanceStorageService.loadSnapshot(name);
-    if (snap) {
-      Object.entries(snap.stats as Record<string, StatState>).forEach(([k, stat]) =>
-  setStatValue(k, stat.value)
-);
-
-      snap.locked?.forEach(k => toggleLock(k));
-      localStorage.setItem('lastSnapshotName', name);
-    } else {
-      alert('Snapshot non trovato!');
-    }
-  };
+  const cards = Object.keys(cardStates);
 
   return (
-    <div className="p-4 space-y-4">
-      <h1 className="text-xl font-bold">{module.name}</h1>
-      <BalancerInputs />
-      <div className="flex gap-2">
-        <Button onClick={saveSnapshot}>Salva Snapshot</Button>
-        <Button onClick={loadSnapshot}>Carica Snapshot</Button>
+    <div className="p-4 space-y-4 bg-gray-900 text-white">
+      {/* HEADER MODULO: solo Save/Load */}
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold">Bilanciamento</h1>
+        <div className="flex gap-2">
+          <button onClick={() => saveSnapshot('snapshot')}>💾 Salva</button>
+          <button onClick={() => loadSnapshot(prompt('Nome snapshot:') || '')}>📂 Carica</button>
+        </div>
       </div>
+
+      {/* MACRO-CARDS */}
+      {cards.map(cardId => (
+        <MacroCard key={cardId} cardId={cardId} />
+      ))}
     </div>
   );
 }

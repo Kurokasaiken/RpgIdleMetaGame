@@ -30,6 +30,7 @@ export interface CardState {
   icon?: string;
   collapsed: boolean;
   active: boolean;
+  formula?: string;
   stats: string[];
   subCards: string[];
 }
