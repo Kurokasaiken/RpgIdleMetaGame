@@ -7,3 +7,7 @@ export const defaultBalancerEntries = [
     description: 'Archetipo base corpo a corpo',
   },
 ];
+export const defaultBalancerConfig = {
+  entries: defaultBalancerEntries,
+  activeEntry: 'warrior_base',
+};

@@ -3,7 +3,6 @@ import React, {
   useState,
   createContext,
   useContext,
-  ReactElement,
   ButtonHTMLAttributes,
   FC,
   useMemo,
@@ -27,6 +26,7 @@ interface TabsProps {
 }
 
 const TabsRoot: FC<TabsProps> = ({ defaultValue, children, className }) => {
+  // Trova tutti i trigger per estrarre i valori
   const allTriggers = React.Children.toArray(children).flatMap((child: any) =>
     child?.type === TabsList
       ? React.Children.toArray(child.props.children)
@@ -34,7 +34,7 @@ const TabsRoot: FC<TabsProps> = ({ defaultValue, children, className }) => {
   );
 
   const firstValue =
-    defaultValue ?? (allTriggers[0] as any)?.props?.value ?? '';
+    defaultValue ?? (allTriggers[0] as React.ReactElement<{ value: string }>)?.props?.value ?? '';
   const [selected, setSelected] = useState(firstValue);
 
   const contextValue = useMemo(
@@ -54,7 +54,11 @@ const TabsRoot: FC<TabsProps> = ({ defaultValue, children, className }) => {
 // -----------------------------------
 
 const TabsList: FC<{ children: ReactNode }> = ({ children }) => {
-  return <div className="flex space-x-2 border-b p-2">{children}</div>;
+  return (
+    <div role="tablist" aria-orientation="horizontal" className="flex space-x-2 border-b p-2">
+      {children}
+    </div>
+  );
 };
 
 // -----------------------------------
@@ -66,7 +70,7 @@ interface TabsTriggerProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
 }
 
-const TabsTrigger: FC<TabsTriggerProps> = ({ value, children, ...props }) => {
+const TabsTrigger: FC<TabsTriggerProps> = ({ value, children, className = '', ...props }) => {
   const context = useContext(TabsContext);
   if (!context) throw new Error('TabsTrigger must be used within a Tabs');
 
@@ -75,14 +79,19 @@ const TabsTrigger: FC<TabsTriggerProps> = ({ value, children, ...props }) => {
 
   return (
     <button
+      role="tab"
+      aria-selected={isActive}
+      aria-controls={`tabpanel-${value}`}
+      id={`tab-${value}`}
+      tabIndex={isActive ? 0 : -1}
       onClick={() => setActiveValue(value)}
       className={
-        'px-4 py-2 text-sm font-medium rounded-t ' +
+        'px-4 py-2 text-sm font-medium rounded-t focus:outline-none focus:ring-2 focus:ring-blue-500 ' +
         (isActive
           ? 'bg-gray-200 text-gray-900'
           : 'text-gray-600 hover:bg-gray-100') +
         ' ' +
-        (props.className || '')
+        className
       }
       {...props}
     >
@@ -107,7 +116,17 @@ const TabsContent: FC<TabsContentProps> = ({ value, children }) => {
   const { activeValue } = context;
   if (activeValue !== value) return null;
 
-  return <div className="mt-4">{children}</div>;
+  return (
+    <div
+      role="tabpanel"
+      id={`tabpanel-${value}`}
+      aria-labelledby={`tab-${value}`}
+      tabIndex={0}
+      className="mt-4"
+    >
+      {children}
+    </div>
+  );
 };
 
 // -----------------------------------

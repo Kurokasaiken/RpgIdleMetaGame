@@ -1,8 +1,7 @@
-/* src/core/BalancerContext.tsx */
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { StatDefinitionService } from '@/services/StatDefinitionService';
 import { BalanceStorageService, StatSnapshot } from '@/services/BalanceStorageService';
-import type { MacroModule, StatState, CardState } from '@/modules/BalancerTab/types';
+import type { MacroModule, StatState, CardState } from '@/modules/BalancerModule/types';
 
 interface BalancerContextValue {
   stats: Record<string, StatState>;
@@ -13,6 +12,8 @@ interface BalancerContextValue {
   setFormula: (key: string, formula: string) => void;
   dirtyStats: Set<string>;
   modules: Record<string, MacroModule>;
+  toggleModuleVisible: (moduleId: string) => void; // Added
+  toggleModuleActive: (moduleId: string) => void;  // Added
   saveSnapshot: (name: string) => void;
   loadSnapshot: (name: string) => void;
   deleteSnapshot: (name: string) => void;
@@ -22,8 +23,6 @@ interface BalancerContextValue {
   addCard: (parentId?: string) => void;
   toggleCardCollapse: (cardId: string) => void;
   toggleCardActive: (cardId: string) => void;
-  undoCard: (cardId: string) => void;
-  redoCard: (cardId: string) => void;
 }
 
 const BalancerContext = createContext<BalancerContextValue | undefined>(undefined);
@@ -33,6 +32,11 @@ export const useBalancerContext = () => {
   return ctx;
 };
 
+export const useRegisteredModules = () => {
+  const { modules } = useBalancerContext();
+  return Object.values(modules);
+};
+
 export const BalancerProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [stats, setStats] = useState<Record<string, StatState>>({});
   const [formulas, setFormulas] = useState<Record<string, string>>({});
@@ -40,18 +44,14 @@ export const BalancerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [dirtyStats, setDirtyStats] = useState<Set<string>>(new Set());
   const [modules, setModules] = useState<Record<string, MacroModule>>({});
   const [cardStates, setCardStates] = useState<Record<string, CardState>>({});
-  const [history, setHistory] = useState<Record<string, { past: CardState[]; future: CardState[] }>>({});
 
   useEffect(() => {
     const defs = StatDefinitionService.getDefaultStats();
     const initStats: Record<string, StatState> = {};
-    const initFormulas: Record<string, string> = {};
     Object.entries(defs).forEach(([key, value]) => {
-      initStats[key] = { id: key, name: key, value, formula: '', locked: false, visible: true };
-      initFormulas[key] = '';
+      initStats[key] = { id: key, name: key, value, formula: '', locked: false, visible: true, constant: null };
     });
     setStats(initStats);
-    setFormulas(initFormulas);
     import('@/core/ModuleRegistry').then(({ ModuleRegistry }) => {
       const all = ModuleRegistry.getAll().reduce((acc, m) => ({ ...acc, [m.id]: m }), {} as any);
       setModules(all);
@@ -64,6 +64,7 @@ export const BalancerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setDirtyStats(prev => new Set(prev).add(key));
     }
   };
+
   const toggleLock = (key: string) => {
     setLockedStats(prev => {
       const next = new Set(prev);
@@ -71,84 +72,116 @@ export const BalancerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       return next;
     });
   };
+
   const setFormula = (key: string, formula: string) => {
     setFormulas(prev => ({ ...prev, [key]: formula }));
     setStats(prev => ({ ...prev, [key]: { ...prev[key], formula } }));
     setDirtyStats(prev => new Set(prev).add(key));
   };
 
-  const saveSnapshot = (name: string) => {
-    BalanceStorageService.saveSnapshot(name, { stats, formulas, cardStates }, lockedStats);
-  };
-  const loadSnapshot = (name: string) => {
-    const snap = BalanceStorageService.loadSnapshot(name) as StatSnapshot & {
-      formulas: Record<string, string>;
-      cardStates: Record<string, CardState>;
+const toggleModuleVisible = (moduleId: string) => {
+  setModules(prev => {
+    const m = prev[moduleId];
+    if (!m) return prev;
+    return {
+      ...prev,
+      [moduleId]: { ...m, isVisible: !m.isVisible },
     };
+  });
+};
+
+const toggleModuleActive = (moduleId: string) => {
+  setModules(prev => {
+    const m = prev[moduleId];
+    if (!m) return prev;
+    return {
+      ...prev,
+      [moduleId]: { ...m, isActive: !m.isActive },
+    };
+  });
+};
+
+  const saveSnapshot = (name: string) => {
+    BalanceStorageService.saveSnapshot(name, {
+      stats,
+      formulas,
+      cardStates,
+    }, lockedStats);
+  };
+
+  const loadSnapshot = (name: string) => {
+    const snap = BalanceStorageService.loadSnapshot(name);
     if (snap) {
       setStats(snap.stats);
       setFormulas(snap.formulas || {});
       setCardStates(snap.cardStates || {});
+      setLockedStats(new Set(snap.locked || []));
     }
   };
+
   const deleteSnapshot = (name: string) => {
     BalanceStorageService.deleteSnapshot(name);
   };
+
   const listSnapshotNames = () => BalanceStorageService.listSnapshotNames();
 
   const addCard = (parentId?: string) => {
     const id = `card-${Date.now()}`;
-    setCardStates(prev => ({
-      ...prev,
-      [id]: { id, name: 'New Card', icon: '⚔️', collapsed: false, active: true, stats: [], subCards: [] },
-      ...(parentId ? { [parentId]: { ...prev[parentId], subCards: [...prev[parentId].subCards, id] } } : {})
-    }));
-    setHistory(prev => ({ ...prev, [id]: { past: [], future: [] } }));
-  };
-  const toggleCardCollapse = (cardId: string) => {
-    setCardStates(prev => ({ ...prev, [cardId]: { ...prev[cardId], collapsed: !prev[cardId].collapsed } }));
-  };
-  const toggleCardActive = (cardId: string) => {
-    setCardStates(prev => ({ ...prev, [cardId]: { ...prev[cardId], active: !prev[cardId].active } }));
-  };
-  const undoCard = (cardId: string) => {
-    const record = history[cardId] || { past: [], future: [] };
-    if (record.past.length > 0) {
-      const prevState = record.past[record.past.length - 1];
-      setHistory(h => ({ ...h, [cardId]: { past: record.past.slice(0, -1), future: [cardStates[cardId], ...record.future] } }));
-      setCardStates(cs => ({ ...cs, [cardId]: prevState }));
-    }
-  };
-  const redoCard = (cardId: string) => {
-    const record = history[cardId] || { past: [], future: [] };
-    if (record.future.length > 0) {
-      const nextState = record.future[0];
-      setHistory(h => ({ ...h, [cardId]: { past: [...record.past, cardStates[cardId]], future: record.future.slice(1) } }));
-      setCardStates(cs => ({ ...cs, [cardId]: nextState }));
-    }
+    setCardStates(prev => {
+      const newCard: CardState = {
+        id,
+        name: 'Nuova Card',
+        icon: '🧩',
+        collapsed: false,
+        active: true,
+        stats: [],
+        color: 'bg-gray-500',
+        subCards: [],
+      };
+      const updated = { ...prev, [id]: newCard };
+      if (parentId && prev[parentId]) {
+        updated[parentId] = {
+          ...prev[parentId],
+          subCards: [...prev[parentId].subCards, id],
+        };
+      }
+      return updated;
+    });
   };
 
-const setStatValue = (key: string, value: number) => {
-  if (!lockedStats.has(key)) {
-    setStats(prev => ({
+  const toggleCardCollapse = (cardId: string) => {
+    setCardStates(prev => ({
       ...prev,
-      [key]: { ...prev[key], value }
+      [cardId]: {
+        ...prev[cardId],
+        collapsed: !prev[cardId].collapsed,
+      },
     }));
-    setDirtyStats(prev => new Set(prev).add(key));
-  }
-};
+  };
+
+  const toggleCardActive = (cardId: string) => {
+    setCardStates(prev => ({
+      ...prev,
+      [cardId]: {
+        ...prev[cardId],
+        active: !prev[cardId].active,
+      },
+    }));
+  };
 
   return (
     <BalancerContext.Provider
       value={{
         stats,
-        setStat: setStatValue,
+        setStat,
         lockedStats,
         toggleLock,
         formulas,
         setFormula,
         dirtyStats,
         modules,
+        toggleModuleVisible, // Added
+        toggleModuleActive,  // Added
         saveSnapshot,
         loadSnapshot,
         deleteSnapshot,
@@ -158,8 +191,6 @@ const setStatValue = (key: string, value: number) => {
         addCard,
         toggleCardCollapse,
         toggleCardActive,
-        undoCard,
-        redoCard
       }}
     >
       {children}

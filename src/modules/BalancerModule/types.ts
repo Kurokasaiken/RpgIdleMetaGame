@@ -4,12 +4,12 @@ import type React from 'react';
 export interface MacroModule {
   id: string;
   name: string;
-  icon: React.ReactNode;
-  colorClass: string;
-  statIds: string[];
+  icon: string;
+  colorClass?: string;
   isVisible: boolean;
   isActive: boolean;
-  Card: React.FC<{ module: MacroModule }>;
+  statIds: string[];
+  Card: React.FC<any>;
   Content: React.FC<{ module: MacroModule }>;
 }
 
@@ -21,6 +21,7 @@ export interface StatState {
   formula: string;
   locked: boolean;
   visible: boolean;
+  constant: number | null; // Add this property
 }
 
 /** Stato di ciascuna Card (macro o micro) */
@@ -30,6 +31,7 @@ export interface CardState {
   icon?: string;
   collapsed: boolean;
   active: boolean;
+  color: string;
   formula?: string;
   stats: string[];
   subCards: string[];

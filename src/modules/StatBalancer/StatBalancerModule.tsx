@@ -1,4 +1,4 @@
-import type { MacroModule } from '../BalancerTab/types';
+import type { MacroModule } from '../BalancerModule/types';
 import { BarChart, SlidersHorizontal } from 'lucide-react';
 
 export const StatBalancerModule: MacroModule = {

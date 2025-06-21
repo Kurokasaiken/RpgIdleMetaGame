@@ -1,29 +1,31 @@
-/* src/components/ModuleTabs.tsx */
 import React from 'react';
+import { useRegisteredModules } from '@/core/BalancerContext';
 import { Tabs } from '@/components/ui/tabs';
-import { useBalancerContext } from '@/core/BalancerContext';
+import type { MacroModule } from '@/modules/BalancerModule/types';
 
-export const ModuleTabs: React.FC = () => {
-  const { modules } = useBalancerContext();
-  const visible = Object.values(modules).filter(m => m.isVisible);
-  const firstId = visible[0]?.id || '';
+export function ModuleTabs() {
+  const modules = useRegisteredModules().filter((m) => m.isVisible);
+
+  if (modules.length === 0) return <p>Nessun modulo visibile</p>;
 
   return (
-    <Tabs defaultValue={firstId} className="w-full">
+    <Tabs defaultValue={modules[0]?.id}>
       <Tabs.List>
-        {visible.map(mod => (
+        {modules.map((mod: MacroModule) => (
           <Tabs.Trigger key={mod.id} value={mod.id}>
             {mod.name}
           </Tabs.Trigger>
         ))}
       </Tabs.List>
-      {visible.map(mod => (
+
+      {modules.map((mod: MacroModule) => (
         <Tabs.Content key={mod.id} value={mod.id}>
-          <div className="p-4 bg-gray-800 min-h-screen">
-            <mod.Card module={mod} />
-          </div>
+          {/* Contenuto dinamico del modulo */}
+          <mod.Content module={mod} />
         </Tabs.Content>
       ))}
     </Tabs>
   );
-};
+}
+
+export default ModuleTabs;
