@@ -1,5 +1,4 @@
-/* src/modules/BalancerTab/types.ts */
-import type React from 'react';
+// src/modules/BalancerModule/types.ts
 
 export interface MacroModule {
   id: string;
@@ -9,30 +8,33 @@ export interface MacroModule {
   isVisible: boolean;
   isActive: boolean;
   statIds: string[];
-  Card: React.FC<any>;
+  Card: React.FC<{ module: MacroModule }>;
   Content: React.FC<{ module: MacroModule }>;
 }
 
-/** Stato di ciascuna Stat nel Balancer */
 export interface StatState {
   id: string;
   name: string;
   value: number;
   formula: string;
   locked: boolean;
+  tooltip?: string;
+  constant: number | null;
+  dirty: boolean;
+  active: boolean;
   visible: boolean;
-  constant: number | null; // Add this property
+  lastRecalcTime?: number;
 }
 
-/** Stato di ciascuna Card (macro o micro) */
 export interface CardState {
   id: string;
   name: string;
-  icon?: string;
+  icon: string;
+  color: string;
   collapsed: boolean;
   active: boolean;
-  color: string;
-  formula?: string;
+  visible: boolean;
   stats: string[];
   subCards: string[];
+  formula?: string;
 }

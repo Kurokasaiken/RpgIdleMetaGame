@@ -16,22 +16,34 @@ export class BalanceStorageService {
     if (!raw) return [];
     try { return JSON.parse(raw) as StatSnapshot[]; } catch { return []; }
   }
+  
   private static saveAll(snaps: StatSnapshot[]) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(snaps));
   }
-  static saveSnapshot(name: string, stats: any, locked: Set<string>) {
-    const payload: StatSnapshot = { name, stats, timestamp: Date.now(), locked: Array.from(locked) };
+  
+  static saveSnapshot(name: string, data: { stats: any; formulas?: Record<string,string>; cardStates?: any }, locked: Set<string>) {
+    const payload: StatSnapshot = { 
+      name, 
+      stats: data.stats,
+      formulas: data.formulas,
+      cardStates: data.cardStates,
+      locked: Array.from(locked),
+      timestamp: Date.now()
+    };
     const all = this.loadAll().filter(s => s.name !== name);
     all.push(payload);
     this.saveAll(all);
   }
+  
   static loadSnapshot(name: string): StatSnapshot | undefined {
     return this.loadAll().find(s => s.name === name);
   }
+  
   static deleteSnapshot(name: string) {
     const all = this.loadAll().filter(s => s.name !== name);
     this.saveAll(all);
   }
+  
   static listSnapshotNames(): string[] {
     return this.loadAll().map(s => s.name);
   }

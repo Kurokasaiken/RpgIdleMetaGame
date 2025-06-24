@@ -1,14 +1,37 @@
-export interface GameModule {
+export interface MacroModule {
   id: string;
   name: string;
-  Content: React.ComponentType<any>;
-  isVisible: true;
-  isActive: true;
-  icon?: string;
+  icon: string;
   colorClass?: string;
+  isVisible: boolean;
+  isActive: boolean;
+  statIds: string[];
+  Card: React.FC<{ module: MacroModule }>;
+  Content: React.FC<{ module: MacroModule }>;
 }
 
-export interface MacroModule extends GameModule {
-  Card?: React.ComponentType<any>;
-  statIds?: string[];
+export interface StatState {
+  id: string;
+  name: string;
+  value: number;
+  formula: string;
+  locked: boolean;
+  visible: boolean;
+  constant: number | null;
+  dirty: boolean;
+  active: boolean;
+  lastRecalcTime?: number;
+}
+
+export interface CardState {
+  id: string;
+  name: string;
+  icon: string;
+  color: string;
+  collapsed: boolean;
+  active: boolean;
+  visible: boolean;
+  stats: string[];
+  subCards: string[];
+  formula?: string;
 }
